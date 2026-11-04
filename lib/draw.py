@@ -466,7 +466,7 @@ class Npc:
         return [self.skin, self.hair, self.shirt, self.pants]
 
 
-def npc(ctx, p, t, walking=True, alpha=1.0, wipe=1.0, frozen_t=None, grin=0.0, sleep=False, clap=False):
+def npc(ctx, p, t, walking=True, alpha=1.0, wipe=1.0, frozen_t=None, grin=0.0, sleep=False, clap=False, stare=0.0, look_down=False):
     """Простой мультяшный прохожий. wipe<1 — растворение снизу вверх."""
     tt = t if frozen_t is None else min(t, frozen_t)
     ph = p.phase + tt * 7.5 * p.speed if walking else None
@@ -655,6 +655,18 @@ def npc(ctx, p, t, walking=True, alpha=1.0, wipe=1.0, frozen_t=None, grin=0.0, s
             ctx.stroke()
         ell(ctx, 30, hy0 + 28, 9, 12)
         fill(ctx, "#4a1d14")
+    elif stare > 0:  # немигающий взгляд в упор
+        for ex in (16, 40):
+            ctx.arc(ex, hy0 + 2, 6 + 6 * stare, 0, TAU)
+            fill(ctx, "#ffffff")
+            ctx.arc(ex + 2, hy0 + 2, 3.2, 0, TAU)
+            fill(ctx, "#111")
+    elif look_down:
+        for ex in (16, 40):
+            ctx.arc(ex, hy0 + 6, 6, 0.3, TAU / 2 - 0.3)
+            ctx.set_line_width(3.5)
+            src(ctx, "#1b1b1b")
+            ctx.stroke()
     else:
         ell(ctx, 16, hy0 + 2, 6, 8)
         fill(ctx, "#1b1b1b")
@@ -662,6 +674,8 @@ def npc(ctx, p, t, walking=True, alpha=1.0, wipe=1.0, frozen_t=None, grin=0.0, s
         fill(ctx, "#1b1b1b")
     if sleep:
         pass
+    elif stare > 0:
+        line(ctx, 18, hy0 + 26, 42, hy0 + 26, 4, "#5a2b1b")
     elif grin > 0:  # слишком широкая улыбка
         ctx.move_to(4, hy0 + 18)
         ctx.curve_to(10, hy0 + 18 + 34 * grin, 50, hy0 + 18 + 34 * grin, 56, hy0 + 14)
