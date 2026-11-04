@@ -14,6 +14,7 @@ from common import FPS, H, ROOT, TRANS, W, Timeline
 sys.path.insert(0, os.path.join(ROOT, "..", "lib"))
 from draw import *  # noqa: E402,F401,F403
 from props import *  # noqa: E402,F401,F403
+from aviation import airliner, tower_ext  # noqa: E402
 
 TL = Timeline()
 EV = TL.ev
@@ -165,74 +166,6 @@ def bolt(ctx, x, y, h, seed, a=1.0):
     ctx.set_line_width(26)
     src(ctx, "#a5b4fc", 0.35 * a)
     ctx.stroke()
-
-
-def airliner(ctx, x, y, s, t, gear=False, lit=True, tilt=0.0):
-    """Лайнер в профиль, нос вправо."""
-    ctx.save()
-    ctx.translate(x, y)
-    ctx.rotate(tilt)
-    ctx.scale(s, s)
-    # дальнее крыло
-    ctx.move_to(-60, -10)
-    ctx.line_to(-260, -170)
-    ctx.line_to(-170, -170)
-    ctx.line_to(120, -10)
-    fill(ctx, "#94a3b8")
-    # хвост
-    ctx.move_to(-640, -60)
-    ctx.line_to(-770, -330)
-    ctx.line_to(-680, -330)
-    ctx.line_to(-480, -60)
-    fill(ctx, "#e5e7eb")
-    ctx.move_to(-700, -250)
-    ctx.line_to(-760, -330)
-    ctx.line_to(-680, -330)
-    ctx.line_to(-640, -250)
-    fill(ctx, "#d8332a")
-    text(ctx, "307", -700, -190, 46, "#1e293b")
-    # фюзеляж
-    ctx.move_to(-700, -40)
-    ctx.curve_to(-700, -100, -650, -110, -560, -110)
-    ctx.line_to(520, -110)
-    ctx.curve_to(640, -110, 720, -70, 740, 0)
-    ctx.curve_to(720, 50, 640, 60, 520, 60)
-    ctx.line_to(-560, 60)
-    ctx.curve_to(-650, 60, -700, 30, -700, -40)
-    ctx.close_path()
-    lgrad(ctx, 0, -110, 0, 60, [(0, "#ffffff"), (0.6, "#e2e8f0"), (1, "#94a3b8")])
-    ctx.fill()
-    line(ctx, -660, 10, 700, 10, 10, "#d8332a")
-    for k in range(26):
-        rr(ctx, -520 + k * 38, -62, 18, 26, 8)
-        fill(ctx, "#fde68a" if lit else "#334155")
-    ctx.move_to(600, -70)
-    ctx.line_to(690, -40)
-    ctx.line_to(640, -30)
-    ctx.line_to(590, -46)
-    fill(ctx, "#1e293b")
-    # ближнее крыло и двигатель
-    ctx.move_to(-80, 10)
-    ctx.line_to(-330, 210)
-    ctx.line_to(-230, 210)
-    ctx.line_to(160, 20)
-    fill(ctx, "#cbd5e1")
-    rr(ctx, -120, 60, 200, 80, 40)
-    lgrad(ctx, 0, 60, 0, 140, [(0, "#e2e8f0"), (1, "#64748b")])
-    ctx.fill()
-    ell(ctx, 80, 100, 14, 38)
-    fill(ctx, "#1e293b")
-    if gear:
-        for gx in (-160, 480):
-            line(ctx, gx, 50, gx, 120, 10, "#475569")
-            ctx.arc(gx, 130, 22, 0, TAU)
-            fill(ctx, "#111")
-    # огни
-    if (t * 1.2) % 1 < 0.12:
-        glow(ctx, -330, 210, 80, "#ffffff", 1)
-    glow(ctx, -770, -330, 50, "#ef4444", 0.6 + 0.4 * math.sin(t * 6))
-    glow(ctx, 0, -110, 40, "#ef4444", 0.5 + 0.5 * math.sin(t * 6 + 1))
-    ctx.restore()
 
 
 def night_sky(ctx, t, flash=0.0):
@@ -846,8 +779,8 @@ def runway_scene(ctx, t, u, D, t_light, t_imp, t_sp, t_sil):
         for i in range(40):
             a = r.uniform(math.pi * 0.85, math.pi * 1.25)
             L = r.uniform(40, 260)
-            for gx in (-160, 480):
-                x0, y0 = 540 + gx * 0.68, 1520 + 130 * 0.68
+            for gx in (-200, 560):
+                x0, y0 = 540 + gx * 0.68, 1520 + 186 * 0.68
                 line(ctx, x0, y0, x0 + math.cos(a) * L, y0 + math.sin(a) * L * 0.4, 4,
                      r.choice(["#fde68a", "#fb923c", "#ffffff"]))
 
@@ -882,37 +815,6 @@ def s8_applause(ctx, t, u, D):
             text(ctx, "ХЛОП", 220 + k * 320, 480 + (k % 2) * 90, 70, "#ffd400", "#000", 10, alpha=a)
 
 
-def tower(ctx, x, y, s, lit=False):
-    ctx.save()
-    ctx.translate(x, y)
-    ctx.scale(s, s)
-    ctx.move_to(-90, 0)
-    ctx.line_to(-60, -900)
-    ctx.line_to(60, -900)
-    ctx.line_to(90, 0)
-    fill(ctx, "#1f2937")
-    ctx.move_to(-200, -900)
-    ctx.line_to(200, -900)
-    ctx.line_to(240, -1080)
-    ctx.line_to(-240, -1080)
-    fill(ctx, "#111827")
-    for k in range(6):
-        rr(ctx, -220 + k * 75, -1060, 60, 140, 6)
-        fill(ctx, "#0b1120")
-        if k == 2:  # разбитое окно
-            ctx.move_to(-220 + k * 75 + 10, -1050)
-            ctx.line_to(-220 + k * 75 + 40, -980)
-            ctx.line_to(-220 + k * 75 + 20, -940)
-            ctx.set_line_width(3)
-            src(ctx, "#64748b")
-            ctx.stroke()
-    rr(ctx, -260, -1120, 520, 50, 10)
-    fill(ctx, "#0b1120")
-    line(ctx, 0, -1120, 0, -1260, 8, "#334155")
-    glow(ctx, 0, -1260, 30, "#ef4444", 0.3)
-    ctx.restore()
-
-
 def s9_run(ctx, t, u, D):
     camx = lerp(200, 900, ease(seg(u, 0, D)))
     ctx.save()
@@ -921,8 +823,8 @@ def s9_run(ctx, t, u, D):
     ctx.arc(900, 300, 90, 0, TAU)
     fill(ctx, "#f1f5f9")
     glow(ctx, 1250, 380, 500, "#cbd5e1", 0.15)
-    tower(ctx, 1250, 1400, 1.0)
-    airliner(ctx, -300, 1300, 0.6, t, gear=True)
+    tower_ext(ctx, 1250, 1400, 0.8, t, lit=True, moon_x=-1)
+    airliner(ctx, -300, 1300, 0.6, t, gear=True, landing_lights=False, lit=False)
     ctx.rectangle(-2000, 1400, 6000, 1500)
     fill(ctx, "#111827")
     for k in range(-10, 30):
@@ -980,6 +882,23 @@ def tower_room(ctx, t, beam=None):
         line(ctx, x + 200, 900, x + 90, 1040, 3, "#334155")
     rr(ctx, -1200, 1080, 3500, 30, 6)
     fill(ctx, "#475569", 0.4)
+    # потолок, провода, качающаяся разбитая лампа
+    ctx.rectangle(-1200, -1200, 3500, 1370)
+    fill(ctx, "#0b0f16")
+    for k in range(-4, 12):
+        line(ctx, k * 160, 150, k * 160 + 40, 170, 3, "#1f2937")
+    for k, (cx_, L_) in enumerate(((120, 140), (430, 90), (760, 170))):
+        ctx.move_to(cx_, 150)
+        ctx.curve_to(cx_ + 20, 150 + L_ * 0.5, cx_ - 30, 150 + L_ * 0.8, cx_ + 10, 150 + L_)
+        ctx.set_line_width(4)
+        src(ctx, "#111827")
+        ctx.stroke()
+    sw = math.sin(t * 1.3) * 0.25
+    lx, ly = 600 + math.sin(sw) * 160, 150 + math.cos(sw) * 160
+    line(ctx, 600, 150, lx, ly, 3, "#111827")
+    ctx.arc(lx, ly + 14, 16, 0, TAU)
+    fill(ctx, "#334155")
+    line(ctx, lx - 8, ly + 6, lx + 6, ly + 22, 2, "#94a3b8")
     # старый радар, бинокль, кружка, планшет, календарь
     ctx.arc(150, 1280, 120, 0, TAU)
     fill(ctx, "#022c22")
