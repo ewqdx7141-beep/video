@@ -14,6 +14,7 @@ import cairo
 
 from common import FPS, H, ROOT, TRANS, W, Timeline
 from draw import *  # noqa: F401,F403
+from props import *  # noqa: F401,F403
 
 TL = Timeline()
 EV = TL.ev
@@ -133,6 +134,27 @@ def s0_bedroom(ctx, t, u, D):
     for y0 in (200, 620, 1050):
         ctx.rectangle(110, y0 - 10, 860, 20)
         fill(ctx, "#fbf7f0")
+    # подоконник: кактус, цветок, кружка-копилка, шторы
+    rr(ctx, 90, 1050, 900, 34, 6)
+    fill(ctx, "#f3eee6")
+    shadow(ctx, 540, 1090, 460, 14, 0.25)
+    plant(ctx, 250, 1052, 0.55, t, "#2563eb")
+    ctx.save()
+    ctx.translate(760, 1052)
+    rr(ctx, -34, -60, 68, 60, 8)
+    fill(ctx, "#e76f51")
+    rr(ctx, -20, -150, 40, 100, 20)
+    fill(ctx, "#4d7c0f")
+    for k in range(5):
+        line(ctx, -20, -130 + k * 18, -28, -134 + k * 18, 3, "#fef9c3")
+        line(ctx, 20, -126 + k * 18, 28, -130 + k * 18, 3, "#fef9c3")
+    ctx.arc(0, -150, 12, 0, TAU)
+    fill(ctx, "#f472b6")
+    ctx.restore()
+    rr(ctx, 560, 990, 60, 62, 10)
+    fill(ctx, "#fde68a")
+    curtain(ctx, 40, 190, 230, 900, "#c2410c", t, 1)
+    curtain(ctx, 810, 190, 230, 900, "#c2410c", t, -1)
     # солнечный луч на стене
     ctx.move_to(150, 1060)
     ctx.line_to(950, 1060)
@@ -142,15 +164,30 @@ def s0_bedroom(ctx, t, u, D):
     fill(ctx, "#fff3d0", 0.12)
     # тумбочка + будильник
     rr(ctx, 840, 1330, 230, 300, 12)
-    fill(ctx, "#8a5a3a")
+    lgrad(ctx, 840, 0, 1070, 0, [(0, "#6f4528"), (0.5, "#94623f"), (1, "#6f4528")])
+    ctx.fill()
+    for k in range(2):
+        rr(ctx, 860, 1360 + k * 130, 190, 110, 8)
+        ctx.set_line_width(4)
+        src(ctx, "#5a3820")
+        ctx.stroke()
+        ctx.arc(955, 1415 + k * 130, 9, 0, TAU)
+        fill(ctx, "#d4a849")
+    glass_water(ctx, 1050, 1332, 0.8)
     rr(ctx, 880, 1240, 150, 92, 22)
     fill(ctx, "#222")
     text(ctx, "07:00", 955, 1286, 46, "#ff4d4d")
     # кровать
     rr(ctx, 40, 1180, 760, 210, 40)
     fill(ctx, "#6f4a33")
+    for k in range(6):  # резьба изголовья
+        rr(ctx, 80 + k * 120, 1210, 80, 140, 20)
+        fill(ctx, "#5e3d29")
     rr(ctx, 90, 1300, 300, 120, 50)
-    fill(ctx, "#f4f1ea")
+    lgrad(ctx, 0, 1300, 0, 1420, [(0, "#ffffff"), (1, "#d6d0c4")])
+    ctx.fill()
+    for k in range(4):
+        line(ctx, 130 + k * 70, 1310, 130 + k * 70, 1410, 6, "#a5b4fc", 0.5)
     # герой: лежит -> рывком садится
     e = emo("sleep") if u < wake else emo("worry", "shock", seg(u, boom - 0.1, boom + 0.1))
     look = (0.5, -0.7) if u < boom else (0, 0)
@@ -169,8 +206,15 @@ def s0_bedroom(ctx, t, u, D):
     ctx.line_to(0, 2200)
     ctx.close_path()
     fill(ctx, "#3456c4")
-    for i in range(6):
-        line(ctx, 60 + i * 140, 1500, 120 + i * 140, 2000, 10, "#2a46a8")
+    for i in range(7):  # клетка на одеяле
+        line(ctx, 40 + i * 130, 1500, 90 + i * 130, 2100, 12, "#2a46a8")
+    for j in range(5):
+        line(ctx, 0, 1560 + j * 110, 860, 1580 + j * 110, 10, "#5b7be0", 0.55)
+    ctx.move_to(0, 1460)
+    ctx.curve_to(250, 1400 - 30 * (1 - sit), 600, 1420, 860, 1450)
+    ctx.set_line_width(26)
+    src(ctx, "#f4f1ea")
+    ctx.stroke()
     ctx.restore()
     # Ни машин, ни голосов, ни птиц
     for k, (w, kind) in enumerate((("машин", "car"), ("голосов", "voice"), ("птиц", "bird"))):
@@ -205,8 +249,27 @@ def s1_street(ctx, t, u, D):
         fill(ctx, r.choice(cols))
         rr(ctx, x + 40, 1250 - 330, w - 80, 250, 10)
         fill(ctx, "#33465c")
+        # витрина: полки с товаром и блик
+        for sh in range(3):
+            line(ctx, x + 50, 1250 - 270 + sh * 70, x + w - 50, 1250 - 270 + sh * 70, 5, "#1f2d3d")
+            for it in range(int((w - 120) / 40)):
+                rr(ctx, x + 60 + it * 40, 1250 - 300 + sh * 70, 26, 30, 4)
+                fill(ctx, r.choice(["#f87171", "#fbbf24", "#60a5fa", "#34d399", "#f9fafb"]))
+        ctx.move_to(x + 60, 1250 - 80)
+        ctx.line_to(x + 160, 1250 - 330)
+        ctx.line_to(x + 220, 1250 - 330)
+        ctx.line_to(x + 120, 1250 - 80)
+        fill(ctx, "#ffffff", 0.12)
+        sc_ = r.choice(["#d8332a", "#2f6fdb", "#1f9d61"])
         rr(ctx, x + 30, 1250 - 400, w - 60, 60, 8)
-        fill(ctx, r.choice(["#d8332a", "#2f6fdb", "#1f9d61"]))
+        fill(ctx, sc_)
+        text(ctx, r.choice(["ПРОДУКТЫ", "АПТЕКА", "КАФЕ", "ЦВЕТЫ", "ПЕКАРНЯ", "ОПТИКА"]), x + w / 2, 1250 - 370, 38, "#ffffff")
+        awning(ctx, x + 30, 1250 - 340, w - 60, 46, sc_)
+        # водосток и кондиционер на фасаде
+        rr(ctx, x + w - 22, 1250 - h, 12, h, 4)
+        fill(ctx, "#9ca3af", 0.7)
+        rr(ctx, x + 40, 1250 - h + 210, 90, 60, 6)
+        fill(ctx, "#e5e7eb")
         for k in range(2):
             rr(ctx, x + 60 + k * (w / 2 - 20), 1250 - h + 70, w / 2 - 100, 120, 8)
             fill(ctx, "#cfe3f2")
@@ -221,6 +284,19 @@ def s1_street(ctx, t, u, D):
     for i in range(-10, 30):
         rr(ctx, i * 260, 1690, 140, 18, 9)
         fill(ctx, "#f2f2f2")
+    # уличная мебель
+    for lx in (-420, 480, 1380, 2280):
+        lamp_post(ctx, lx, 1330)
+    tree(ctx, 120, 1300, 0.8, t, 1)
+    tree(ctx, 1900, 1300, 0.8, t, 2)
+    trash_bin(ctx, 380, 1320, 0.9)
+    hydrant(ctx, 950, 1330, 0.9)
+    # брошенная машина с открытой дверью
+    parked_car(ctx, -350, 1560, 1.0, "#3b82f6", door_open=True)
+    # газеты гонит ветер
+    for k in range(3):
+        nx = (-500 + k * 700 + t * 160) % 2600 - 400
+        newspaper(ctx, nx, 1200 + k * 60 + math.sin(t * 2 + k) * 50, math.sin(t * 3 + k) * 0.8, 0.9)
     # светофор мигает жёлтым
     line(ctx, 1040, 1270, 1040, 820, 18, "#2d2d2d")
     rr(ctx, 1000, 700, 80, 210, 20)
@@ -262,12 +338,32 @@ def s1_street(ctx, t, u, D):
         fill(ctx, "#c8901a")
         rr(ctx, bx + dx + 134, by - 400, 30, 330, 6)
         fill(ctx, "#c8901a")
-    text(ctx, "47", bx + 990, by - 395, 60, "#111")
+    rr(ctx, bx + 20, by - 462, 1040, 26, 12)
+    fill(ctx, "#fcd34d", 0.7)
+    rr(ctx, bx + 880, by - 470, 180, 60, 8)
+    fill(ctx, "#111")
+    text(ctx, "47 ЦЕНТР", bx + 970, by - 440, 30, "#fb923c")
+    ell(ctx, bx + 1060, by - 150, 22, 30)
+    fill(ctx, "#fef9c3")
+    glow(ctx, bx + 1060, by - 150, 90, "#fef9c3", 0.6)
+    rr(ctx, bx + 1074, by - 420, 14, 120, 6)
+    fill(ctx, "#111")
+    rr(ctx, bx + 1060, by - 320, 50, 70, 10)
+    fill(ctx, "#1f2937")
+    for k in range(6):
+        line(ctx, bx + 70 + k * 168, by - 260, bx + 70 + k * 168, by - 160, 4, "#d18f0a")
+    shadow(ctx, bx + 540, by + 20, 600, 30, 0.45)
     for wx in (bx + 190, bx + 880):
+        ctx.arc(wx, by - 50, 96, TAU / 2, TAU)
+        fill(ctx, "#b07a10")
         ctx.arc(wx, by - 50, 78, 0, TAU)
         fill(ctx, "#1c1c1c")
-        ctx.arc(wx, by - 50, 34, 0, TAU)
+        ctx.arc(wx, by - 50, 40, 0, TAU)
         fill(ctx, "#9aa0a6")
+        for k in range(6):
+            a_ = k * TAU / 6
+            ctx.arc(wx + math.cos(a_) * 26, by - 50 + math.sin(a_) * 26, 5, 0, TAU)
+            fill(ctx, "#4b5563")
     # двигатель ещё работает: вибрация и выхлоп
     puff(ctx, bx + 1100, by - 70, t, 7, rate=0.18, dx=220, dy=-140, a=0.55, col="#b9bec5")
     # герой
@@ -302,11 +398,11 @@ def phone_chat(lines_, typing=True, sent_visible=1.0, title="Мама ❤", unse
         if unsent is not None:
             rr(ctx, x + 20, y + h - 130, w - 40, 90, 40)
             fill(ctx, "#202d42")
-            text(ctx, unsent, x + 55, y + h - 85, 38, "#ffffff", align="left")
+            text(ctx, unsent, x + 44, y + h - 85, 28, "#ffffff", align="left")
             if (t * 1.8) % 1 < 0.55:
-                cw = text_w(ctx, unsent, 38)
-                line(ctx, x + 60 + cw, y + h - 108, x + 60 + cw, y + h - 62, 5, "#7fb2ff", cap=cairo.LINE_CAP_BUTT)
-            ctx.arc(x + w - 70, y + h - 85, 32, 0, TAU)
+                cw = text_w(ctx, unsent, 28)
+                line(ctx, x + 50 + cw, y + h - 104, x + 50 + cw, y + h - 66, 5, "#7fb2ff", cap=cairo.LINE_CAP_BUTT)
+            ctx.arc(x + w - 48, y + h - 85, 22, 0, TAU)
             fill(ctx, "#2f7cf6")
     return f
 
@@ -329,37 +425,39 @@ def s2_cafe(ctx, t, u, D):
     vgrad(ctx, -600, 1000, 2400, 1400, [(0, "#a8704a"), (1, "#6e4227")])
     for i in range(12):
         line(ctx, -600, 1040 + i * 90, 1800, 1060 + i * 90 + (i % 3) * 8, 3, "#5a361f", 0.35)
-    # блюдце и чашка
-    ell(ctx, 390, 1240, 230, 60)
-    fill(ctx, "#e8e4dc")
-    ell(ctx, 390, 1228, 180, 42)
-    fill(ctx, "#f7f4ee")
-    ctx.move_to(250, 1040)
-    ctx.line_to(530, 1040)
-    ctx.curve_to(525, 1180, 470, 1225, 390, 1225)
-    ctx.curve_to(310, 1225, 255, 1180, 250, 1040)
-    fill(ctx, "#ffffff")
-    ctx.arc(560, 1100, 50, -1.4, 1.4)
-    ctx.set_line_width(22)
-    src(ctx, "#ffffff")
-    ctx.stroke()
-    ell(ctx, 390, 1042, 140, 26)
-    fill(ctx, "#5a3420")
-    ell(ctx, 380, 1040, 60, 10)
-    fill(ctx, "#c58a5a", 0.6)
-    steam(ctx, 390, 1010, t, h=330, a=0.6)
-    # круассан
+    # окно кафе: переплёт и подвесные лампы на фоне
+    for xx in (-200, 300, 800, 1300):
+        rr(ctx, xx - 10, 200, 20, 820, 4)
+        fill(ctx, "#2a1c15", 0.8)
+    rr(ctx, -600, 600, 2400, 18, 4)
+    fill(ctx, "#2a1c15", 0.8)
+    for lx in (120, 620, 1120):
+        hanging_lamp(ctx, lx, 260, on=True, col="#1f2937")
+    chair(ctx, 1100, 1010, 1.2, "#3b2418")
+    flower_vase(ctx, 980, 1060, 0.9, t)
+    # меню-подставка
     ctx.save()
-    ctx.translate(170, 1400)
-    ctx.rotate(-0.3)
-    for i in range(5):
-        ell(ctx, -90 + i * 45, 0, 50, 40 - abs(i - 2) * 8)
-        fill(ctx, "#d9952f" if i % 2 else "#e8aa45")
+    ctx.translate(560, 1010)
+    rr(ctx, -50, -150, 100, 150, 6)
+    fill(ctx, "#1f2937")
+    text(ctx, "МЕНЮ", 0, -110, 24, "#fbbf24")
+    for k in range(4):
+        line(ctx, -32, -70 + k * 18, 32, -70 + k * 18, 3, "#9ca3af")
     ctx.restore()
+    # круассан на тарелке, сахар, салфетка с вилкой
+    plate(ctx, 150, 1420, 210, 62)
+    croissant(ctx, 150, 1400, 0.8, -0.15)
+    sugar_packet(ctx, 520, 1330, 0.4, "#e74c3c", "САХАР")
+    sugar_packet(ctx, 560, 1395, -0.2, "#8b5a2b", "САХАР")
+    napkin_fork(ctx, 1000, 1560, 0.25)
+    # капучино
+    coffee_cup(ctx, 390, 1240, 0.95, t)
+    steam(ctx, 390, 1020, t, h=330, a=0.55)
     # телефон с недописанным сообщением
     ctx.save()
     ctx.translate(760, 1220)
     ctx.rotate(-0.1)
+    shadow(ctx, 20, 30, 220, 360, 0.4)
     phone_body(ctx, 0, 0, 330, 640,
                phone_chat([(0, "Ты где?"), (0, "Ужин готов!")], unsent="Я почти дом", t=t,
                           title="Мама"))
@@ -537,6 +635,9 @@ def s4_tv(ctx, t, u, D):
                     fill(ctx, "#ffffff", r.uniform(0.05, 0.3))
                 text(ctx, "НЕТ СИГНАЛА", x + 155, y + 95, 30, "#ffffff", alpha=0.7)
             glow(ctx, x + 155, y + 95, 260, "#3b82f6", 0.12 + 0.1 * on)
+            rr(ctx, x + 110, y + 196, 90, 34, 4)
+            fill(ctx, "#facc15")
+            text(ctx, f"{39 + (row * 4 + col) * 7}990", x + 155, y + 213, 20, "#111")
     # пол витрины
     ctx.rectangle(-800, 1430, 2700, 1200)
     fill(ctx, "#0c0f16")
@@ -645,12 +746,30 @@ def s5_fun(ctx, t, u, D):
         line(ctx, 540, -200, 540, 260, 6, "#e7c66a")
         for i in range(7):
             glow(ctx, 380 + i * 53, 300 + abs(i - 3) * -10, 60, "#fff2b0", 0.8)
+        curtain(ctx, -260, 200, 300, 1300, "#7e1d4f", t, 1)
+        curtain(ctx, 1040, 200, 300, 1300, "#7e1d4f", t, -1)
+        for nx in (-30, 1110):
+            rr(ctx, nx - 80, 1220, 160, 180, 10)
+            fill(ctx, "#5b2b16")
+            table_lamp(ctx, nx, 1220, 0.9)
         rr(ctx, 120, 860, 840, 360, 60)
-        fill(ctx, "#d4a849")
+        lgrad(ctx, 120, 0, 960, 0, [(0, "#a8801f"), (0.5, "#f1d27a"), (1, "#a8801f")])
+        ctx.fill()
+        for k in range(5):
+            ctx.arc(220 + k * 160, 1000, 40, 0, TAU)
+            ctx.set_line_width(8)
+            src(ctx, "#a8801f")
+            ctx.stroke()
         rr(ctx, 60, 1160, 960, 360, 40)
         fill(ctx, "#f2ece2")
+        for k, px in enumerate((160, 330, 750, 920)):
+            rr(ctx, px - 80, 1120 - (k % 2) * 10, 160, 90, 40)
+            fill(ctx, "#fff7ed" if k % 3 else "#f9a8d4")
         rr(ctx, 60, 1300, 960, 260, 30)
-        fill(ctx, "#8e2b4a")
+        lgrad(ctx, 0, 1300, 0, 1560, [(0, "#a83a5c"), (1, "#6e1e38")])
+        ctx.fill()
+        for k in range(8):
+            line(ctx, 60, 1330 + k * 30, 1020, 1330 + k * 30, 3, "#f1d27a", 0.35)
         jump = abs(math.sin(u * 6.5)) * 260
         hero(ctx, 540, 1250 - jump, 0.85, emo("happy"), t, arms="up", walk=u * 3)
         r = random.Random(3)
@@ -664,28 +783,55 @@ def s5_fun(ctx, t, u, D):
             fill(ctx, "#ffffff", 0.9)
             ctx.restore()
         text(ctx, "ЛЮКС", 540, 560, 130, "#ffd400", "#000", 16, shadow=True)
-    else:  # всё, что хочешь
+    else:  # всё, что хочешь: фудкорт и ровно сервированный стол
         k = (u - c) / max(0.01, D - c)
-        cam(ctx, t, 540, 1150, lerp(0.92, 1.18, ease(k)), shake=0.5)
+        cam(ctx, t, 540, 1150, lerp(0.92, 1.12, ease(k)), shake=0.5)
         vgrad(ctx, -800, -800, 2700, 3600, [(0, "#ffd9a0"), (1, "#f59e6b")])
-        for i in range(-2, 7):
-            rr(ctx, i * 260, 300, 200, 260, 20)
-            fill(ctx, "#ffffff", 0.35)
-        hero(ctx, 540, 1500, 0.95, emo("joy"), t, arms="hold", bob=math.sin(u * 10) * 6,
-             hand_item=lambda cc, x, y: burger(cc, x - 40, y - 30, 0.9))
-        r = random.Random(77)
-        rr(ctx, -200, 1420, 1480, 900, 30)
-        fill(ctx, "#8b5a3c")
-        for i in range(34):
-            x = 540 + r.uniform(-1, 1) * 520 * (1 - i / 40)
-            y = 1440 - (i / 34) * 180 + r.uniform(-30, 30)
-            f = r.choice((burger, donut, pizza, soda))
-            if f is pizza:
-                f(ctx, x, y, 0.9, r.uniform(-1, 1))
-            elif f is donut:
-                f(ctx, x, y, 0.9, r.choice(["#f472b6", "#8b5a2b", "#fde68a"]))
-            else:
-                f(ctx, x, y, 0.9)
+        # вывески фудкорта
+        for i, (nm, col) in enumerate((("БУРГЕРЫ", "#dc2626"), ("ПИЦЦА", "#16a34a"), ("ДОНАТЫ", "#db2777"),
+                                       ("СУШИ", "#1d4ed8"))):
+            x = -230 + i * 400
+            rr(ctx, x, 260, 360, 420, 16)
+            fill(ctx, "#fff7ed")
+            rr(ctx, x, 260, 360, 90, 16)
+            fill(ctx, col)
+            text(ctx, nm, x + 180, 305, 44, "#ffffff")
+            for j in range(4):
+                rr(ctx, x + 30, 380 + j * 70, 200, 18, 6)
+                fill(ctx, "#d6d3d1")
+                text(ctx, f"{(j + 2) * 90} р", x + 300, 389 + j * 70, 30, col)
+        for lx in (60, 540, 1020):
+            hanging_lamp(ctx, lx, 760, on=True, col="#7c2d12")
+        hero(ctx, 540, 1480, 0.95, emo("joy"), t, arms="hold", bob=math.sin(u * 10) * 6,
+             hand_item=lambda cc, x, y: burger2(cc, x - 40, y - 40, 0.75))
+        # стол с клетчатой скатертью
+        rr(ctx, -300, 1360, 1680, 1000, 20)
+        fill(ctx, "#fafaf9")
+        for i in range(-4, 20):
+            ctx.rectangle(-300 + i * 90, 1360, 45, 1000)
+            fill(ctx, "#ef4444", 0.75)
+        for j in range(12):
+            ctx.rectangle(-300, 1360 + j * 90, 1680, 45)
+            fill(ctx, "#ef4444", 0.35)
+        rr(ctx, -300, 1360, 1680, 26, 6)
+        fill(ctx, "#000", 0.12)
+        # центр: двухъярусная подставка с бургерами
+        cake_stand(ctx, 540, 1560, 300, 230)
+        for bx_ in (420, 540, 660):
+            burger2(ctx, bx_, 1500, 0.72)
+        for bx_ in (470, 610):
+            burger2(ctx, bx_, 1270, 0.6)
+        # слева пицца в коробке, справа донаты на тарелке
+        pizza_whole(ctx, 120, 1690, 190, 110)
+        plate(ctx, 960, 1700, 200, 70)
+        for i, (dx, dy, ic) in enumerate(((-90, -10, "#f472b6"), (0, -20, "#8b5a2b"), (90, -10, "#fde68a"),
+                                          (-45, 25, "#60a5fa"), (45, 25, "#f472b6"))):
+            donut2(ctx, 960 + dx, 1700 + dy, 0.8, ic)
+        # ряд напитков и картошка
+        for i, col in enumerate(("#ef4444", "#f59e0b", "#3b82f6")):
+            soda_cup(ctx, 290 + i * 90, 1860, 0.85, col)
+        fries(ctx, 720, 1880, 0.9)
+        fries(ctx, 830, 1890, 0.9)
     ctx.restore()
 
 
@@ -710,6 +856,18 @@ def s6_silence(ctx, t, u, D):
         fill(ctx, "#05070e")
     ctx.rectangle(-1200, 1500, 3500, 1500)
     fill(ctx, "#0a0e1c")
+    # диван и торшер (выключен)
+    rr(ctx, -260, 1330, 520, 200, 50)
+    fill(ctx, "#1b2440")
+    rr(ctx, -280, 1420, 560, 120, 40)
+    fill(ctx, "#222c4d")
+    line(ctx, 1240, 1500, 1240, 1050, 10, "#0f1428")
+    ctx.move_to(1160, 1060)
+    ctx.line_to(1320, 1060)
+    ctx.line_to(1280, 950)
+    ctx.line_to(1200, 950)
+    fill(ctx, "#1b2440")
+    plant(ctx, 960, 1520, 0.9, t, "#334155")
     # отражение луны на полу
     glow(ctx, 640, 1600, 280, "#9fb4ff", 0.12)
     hero(ctx, 540, 1640, 0.9, emo("sad"), t, arms="hug", legs=False, knees=True, rim="#7ea0ff",
@@ -739,10 +897,18 @@ def s7_mannequin(ctx, t, u, D):
     turn = -ease(seg(u, D - 1.6, D - 0.3))
     for i, mx in enumerate((-60, 160, 1040, 1250)):
         mannequin(ctx, mx, 1000, 0.95, head_turn=turn if i == 2 else 0.0)
+    for lx in (-100, 400, 900, 1400):
+        hanging_lamp(ctx, lx, 180, on=True, col="#0f2a2e")
     ctx.rectangle(-800, 1000, 2700, 1500)
-    fill(ctx, "#2a3b3e")
+    lgrad(ctx, 0, 1000, 0, 2500, [(0, "#2a3b3e"), (1, "#1a2628")])
+    ctx.fill()
+    for i in range(-3, 6):
+        glow(ctx, i * 420 + 90, 1060, 200, "#5eead4", 0.08)
     for i in range(-6, 14):
         line(ctx, i * 150, 1000, i * 260 - 900, 2400, 3, "#334a4e")
+    plant(ctx, -60, 1300, 1.1, t, "#0f766e")
+    plant(ctx, 1180, 1320, 1.0, t, "#0f766e")
+    bench(ctx, 1150, 1180, 0.8)
     # собеседник-манекен
     mannequin(ctx, 800, 1520, 1.15, pose=0.2)
     # герой
@@ -766,12 +932,7 @@ def s7_mannequin(ctx, t, u, D):
     fill(ctx, "#b8b2a6")
     # чашки
     def cup(x, y):
-        rr(ctx, x - 40, y - 70, 80, 75, 16)
-        fill(ctx, "#ffffff")
-        ctx.arc(x + 46, y - 36, 20, -1.3, 1.3)
-        ctx.set_line_width(10)
-        src(ctx, "#ffffff")
-        ctx.stroke()
+        coffee_cup(ctx, x, y + 6, 0.36, t, heart=True)
     cup(420, 1440)
     kk = ease(seg(u, tg + 0.1, tg + 0.7))
     cup(lerp(500, 690, kk), lerp(1300, 1440, kk) - math.sin(kk * math.pi) * 60)
@@ -833,6 +994,21 @@ def s8_roof(ctx, t, u, D):
         fill(ctx, "#6e6b67")
         ctx.arc(x, y, 34, 0, TAU)
         fill(ctx, "#4c4a47")
+    water_tank(ctx, 1020, 1640, 0.9)
+    ac_unit(ctx, 60, 1660, 0.8, t)
+    ac_unit(ctx, 260, 1680, 0.7, t + 1)
+    line(ctx, 1080, 300, 1080, 520, 8, "#4b5563")  # антенна
+    for k in range(3):
+        line(ctx, 1030, 340 + k * 50, 1130, 340 + k * 50, 6, "#4b5563")
+    for k in range(9):  # швы кровли
+        line(ctx, -100, 300 + k * 180, 1180, 300 + k * 180, 3, "#7a7773", 0.6)
+    # след от валика
+    ctx.save()
+    ctx.translate(540, 1000)
+    ctx.rectangle(-700, 420, 1400 * pk, 50)
+    ctx.restore()
+    fill(ctx, "#e3261f", 0.45)
+    paint_bucket(ctx, -40, 1500, 1.0)
     # надпись Я ЗДЕСЬ — проявляется по мере покраски
     ctx.save()
     ctx.translate(540, 1000)
@@ -917,7 +1093,20 @@ def s9_vibrate(ctx, t, u, D):
     fill(ctx, "#1d2d6b")
     # тумбочка и телефон
     rr(ctx, 680, 1300, 320, 400, 14)
-    fill(ctx, "#3a2a28")
+    lgrad(ctx, 680, 0, 1000, 0, [(0, "#2a1e1c"), (0.5, "#3f2d2a"), (1, "#2a1e1c")])
+    ctx.fill()
+    ctx.arc(840, 1420, 9, 0, TAU)
+    fill(ctx, "#8a7a5a")
+    glass_water(ctx, 960, 1300, 0.9)
+    for k, col in enumerate(("#7f1d1d", "#1e3a8a", "#14532d")):  # стопка книг
+        rr(ctx, 690 + k * 4, 1300 - 26 * (k + 1), 120, 24, 4)
+        fill(ctx, col)
+    table_lamp(ctx, 940, 1170, 0.7, on=False)
+    ctx.move_to(880, 1300)  # провод зарядки
+    ctx.curve_to(900, 1420, 1000, 1380, 1010, 1600)
+    ctx.set_line_width(5)
+    src(ctx, "#e5e7eb", 0.7)
+    ctx.stroke()
     if on:
         glow(ctx, 840, 1260, 520, "#7dd3fc", 0.45 * (0.8 + 0.2 * math.sin(t * 30)))
     ctx.save()
@@ -1044,6 +1233,22 @@ def stairwell(ctx, t, u, s0, steps):
         ctx.close_path()
         fill(ctx, "#2f323b")
         text(ctx, str(f + 1), 980, y - 300, 120, "#5a5f6b")
+        # перила
+        line(ctx, 100, y - 140, 900, y - FH - 140, 8, "#4b5563")
+        for k in range(9):
+            line(ctx, 140 + k * 85, y - 10 - k * (FH / 10), 140 + k * 85, y - 140 - k * (FH / 10) - 10, 4, "#4b5563")
+        apartment_door(ctx, -230, y, 200, 380, str(f * 4 + 1))
+        apartment_door(ctx, 1130, y, 200, 380, str(f * 4 + 2))
+        if f == 0:
+            mailboxes(ctx, 920, y - 520, 3, 3)
+        # трещины на стене
+        r_ = random.Random(f)
+        ctx.move_to(r_.uniform(300, 800), y - FH + 40)
+        for k in range(4):
+            ctx.rel_line_to(r_.uniform(-30, 30), r_.uniform(20, 50))
+        ctx.set_line_width(3)
+        src(ctx, "#0b0c10", 0.6)
+        ctx.stroke()
         # лампа: гаснет, когда тень проходит этаж
         alive = f > floor_f + 0.3 or f > 8
         flick = alive and (f == int(floor_f + 1)) and random.Random(int(t * 15) + f).random() < 0.3
@@ -1087,6 +1292,15 @@ def s12_final(ctx, t, u, D):
         fill(ctx, "#5c3b29")
         ctx.arc(820, 1050, 28, 0, TAU)
         fill(ctx, "#d4a849")
+        ctx.arc(540, 520, 22, 0, TAU)  # глазок
+        fill(ctx, "#d4a849")
+        ctx.arc(540, 520, 12, 0, TAU)
+        fill(ctx, "#111")
+        for k in range(5):  # цепочка
+            ell(ctx, 760 + k * 22, 900 + k * 8, 14, 8)
+            ctx.set_line_width(5)
+            src(ctx, "#c0c4ca")
+            ctx.stroke()
         ctx.restore()
         hero(ctx, 540, lerp(1385, 1555, k), lerp(1.7, 2.3, k), emo("fear"), t, arms="shock", legs=False,
              look=(0, 0), tremble=1.2, rim="#ffb36b")
@@ -1111,9 +1325,16 @@ def s12_final(ctx, t, u, D):
             for side in (-1, 1):
                 ctx.rectangle(540 + side * 120 - 70, 1320, 140 * near, 26)
                 fill(ctx, "#000")
-        # пол комнаты
+        # пол комнаты, коврик, ручка двери
         ctx.rectangle(-800, 1346, 2700, 1500)
         fill(ctx, "#140e0a")
+        for k in range(8):
+            line(ctx, -800, 1400 + k * k * 12, 1900, 1400 + k * k * 12, 3, "#24180f")
+        rr(ctx, 240, 1400, 600, 120, 14)
+        fill(ctx, "#3b2a1a")
+        text(ctx, "ДОБРО ПОЖАЛОВАТЬ", 540, 1460, 34, "#6b4f33")
+        rr(ctx, 860, 700, 60, 26, 10)
+        fill(ctx, "#a88a4a")
         ctx.restore()
         # свет мигает и гаснет
         if t > d - 0.9:
