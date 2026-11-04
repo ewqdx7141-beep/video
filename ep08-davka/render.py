@@ -262,9 +262,8 @@ def draw_crowd(ctx, t, squeeze=0.0, back=False, turn=None, clap=False, sway=1.0,
     tt = t if freeze is None else min(t, freeze)
     drawn_hero = False
     for p in sorted(crowd8(), key=lambda q: q.y):
-        if hero_fn and not drawn_hero and p.row >= 3:
-            hero_fn()
-            drawn_hero = True
+        if hero_fn and p.row >= 2 and abs(p.x - 540) < 230:
+            continue  # не закрываем героя
         ox = (540 - p.x) * 0.22 * squeeze + math.sin(tt * 2 + p.seed) * 12 * sway
         oy = -abs(math.sin(tt * 4 + p.seed)) * 18 * sway * (0 if freeze is not None and t > freeze else 1)
         x0, y0 = p.x, p.y
@@ -443,10 +442,10 @@ def s6_exit(ctx, t, u, D):
     cam(ctx, t, lerp(540, 900, ease(seg(t, ex - 0.3, ex + 1.0))), 1250, 1.05, shake=0.4)
     concert_front(ctx, t, 0.4, dict(e=emo("calm"), arms="hug", look=(0.9, -0.5), tremble=0.0), cheer=False)
     # знак выхода справа
-    rr(ctx, 1150, 700, 360, 140, 10)
+    rr(ctx, 960, 760, 360, 140, 10)
     fill(ctx, "#16a34a")
-    glow(ctx, 1330, 770, 300, "#22c55e", 0.6)
-    text(ctx, "ВЫХОД", 1330, 770, 70, "#ffffff")
+    glow(ctx, 1140, 830, 300, "#22c55e", 0.6)
+    text(ctx, "ВЫХОД", 1140, 830, 70, "#ffffff")
     # ограждение слева с крестом
     rr(ctx, -400, 1500, 300, 400, 10)
     fill(ctx, "#52525b")
@@ -537,7 +536,7 @@ def s10_clap(ctx, t, u, D):
 def man_in_black(x, y, sc):
     p = Npc(random.Random(7007), x, y, sc, -1)
     p.shirt, p.pants, p.style, p.hair, p.item = "#0a0a0a", "#0a0a0a", "short", "#111", "none"
-    p.glasses, p.headphones, p.beard, p.mustache, p.collar, p.print_ = True, True, False, False, "shirt", None
+    p.glasses, p.headphones, p.beard, p.mustache, p.collar, p.print_ = True, False, False, False, "shirt", None
     p.skin = "#d6b08c"
     return p
 
@@ -565,19 +564,27 @@ def s11_badge(ctx, t, u, D):
     cam(ctx, t, 540, lerp(1150, 1100, seg(u, 0, D)), lerp(1.0, 1.3, ease(seg(t, bd - 0.5, bd + 1.0))), shake=0.25)
     vgrad(ctx, -800, -800, 2700, 3600, [(0, "#18181b"), (1, "#09090b")])
     # фургон на фоне
-    rr(ctx, -300, 600, 900, 520, 40)
-    fill(ctx, "#111")
-    rr(ctx, 400, 680, 180, 420, 6)
-    fill(ctx, "#fde68a", 0.25)
+    ctx.rectangle(-800, 1200, 2700, 1400)
+    fill(ctx, "#27272a")
+    rr(ctx, -300, 600, 900, 560, 40)
+    lgrad(ctx, 0, 600, 0, 1160, [(0, "#52525b"), (1, "#27272a")])
+    ctx.fill()
+    rr(ctx, -260, 640, 300, 160, 14)
+    fill(ctx, "#0b0b0b")
+    rr(ctx, 400, 660, 180, 460, 6)
+    fill(ctx, "#fde68a", 0.35)
+    glow(ctx, 490, 900, 300, "#fde68a", 0.25)
     for wx in (-160, 420):
-        ctx.arc(wx, 1120, 70, 0, TAU)
+        ctx.arc(wx, 1160, 70, 0, TAU)
         fill(ctx, "#050505")
+        ctx.arc(wx, 1160, 30, 0, TAU)
+        fill(ctx, "#71717a")
     p = man_in_black(840, 1950, 1.5)
     npc(ctx, p, t, walking=False)
     hero(ctx, 330, 1950, 1.25, emo("worry", "shock", seg(t, bd, bd + 0.3)), t, arms="down", rim="#facc15",
          rim_a=0.6, look=(0.8, 0))
     if t > bd - 0.3:
-        badge7(ctx, 330, lerp(1100, 1490, ease(seg(t, bd - 0.3, bd + 0.3))), 0.75, t)
+        badge7(ctx, 330, lerp(1200, 1720, ease(seg(t, bd - 0.3, bd + 0.3))), 0.6, t)
     ctx.restore()
 
 
