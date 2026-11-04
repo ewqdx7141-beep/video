@@ -61,11 +61,11 @@ class Timeline:
         e["hit"] = [self.shots[i][0] for i, k in TRANS.items() if k == "flash"]
         e["surge"] = self.wt(1, "сжимается")
         e["steps"] = [self.wt(i, "шаг") for i in range(2, 7)]
-        e["phone_drop"] = self.wt(4, "падает")
+        e["phone_drop"] = self.wt(4, "телефон")
         e["fall"] = self.wt(5, "упал")
-        e["curl"] = self.wt(5, "свернись")
+        e["curl"] = self.wt(5, "бок")
         e["exit"] = self.wt(6, "выход")
-        e["score"] = [self.wt(7, "плюс", k) for k in range(5)]
+        e["score"] = [self.wt(7, "пять") + 0.2 + k * 0.45 for k in range(5)]
         e["total"] = self.wt(8, "сто")
         e["stop"] = self.wt(9, "обрывается")
         e["turn"] = self.wt(9, "поворачиваются")

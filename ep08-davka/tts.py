@@ -26,7 +26,7 @@ def probe(path):
 
 
 SPK = {  # N — рассказчик; A — диспетчер-женщина; B — второй голос (сорванный); R — финал, голос рассказчика в рации
-    "N": dict(voice="ru-RU-DmitryNeural", rate="-3%", pitch="-6Hz"),
+    "N": dict(voice="ru-RU-DmitryNeural", rate="+6%", pitch="-6Hz"),
     "A": dict(voice="ru-RU-SvetlanaNeural", rate="-1%", pitch="-2Hz"),
     "B": dict(voice="ru-RU-DmitryNeural", rate="-10%", pitch="-14Hz"),
     "R": dict(voice="ru-RU-DmitryNeural", rate="-12%", pitch="-8Hz"),
