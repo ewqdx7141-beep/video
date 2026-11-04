@@ -510,6 +510,7 @@ def crowd7():
             CROWD7.append(p)
         lady = CROWD7[6]
         lady.shirt, lady.style, lady.hair, lady.glasses, lady.female = "#f9a8d4", "bun", "#9a9a9a", True, True
+        lady.beard, lady.mustache, lady.earrings = False, False, True
     return CROWD7
 
 
