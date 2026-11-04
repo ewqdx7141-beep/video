@@ -13,6 +13,8 @@ from multiprocessing import Pool
 import cairo
 
 from common import FPS, H, ROOT, TRANS, W, Timeline
+
+sys.path.insert(0, os.path.join(ROOT, "..", "lib"))
 from draw import *  # noqa: F401,F403
 from props import *  # noqa: F401,F403
 

@@ -3,7 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 pip install -q pycairo edge-tts numpy scipy
-mkdir -p ~/.fonts && cp fonts/*.ttf ~/.fonts/ && fc-cache -f >/dev/null
+mkdir -p ~/.fonts && cp ../lib/fonts/*.ttf ~/.fonts/ && fc-cache -f >/dev/null
 [ -f audio/lines.json ] || python3 tts.py
 python3 render.py --jobs "$(nproc)"
 python3 audio.py
