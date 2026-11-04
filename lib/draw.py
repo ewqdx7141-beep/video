@@ -453,7 +453,7 @@ class Npc:
         return [self.skin, self.hair, self.shirt, self.pants]
 
 
-def npc(ctx, p, t, walking=True, alpha=1.0, wipe=1.0, frozen_t=None, grin=0.0):
+def npc(ctx, p, t, walking=True, alpha=1.0, wipe=1.0, frozen_t=None, grin=0.0, sleep=False, clap=False):
     """Простой мультяшный прохожий. wipe<1 — растворение снизу вверх."""
     tt = t if frozen_t is None else min(t, frozen_t)
     ph = p.phase + tt * 7.5 * p.speed if walking else None
@@ -489,7 +489,11 @@ def npc(ctx, p, t, walking=True, alpha=1.0, wipe=1.0, frozen_t=None, grin=0.0):
     for side, s2 in ((-1, sw), (1, -sw)):
         ax, ay = side * 58, -290
         hx, hy = ax + math.sin(s2) * 120, ay + math.cos(s2) * 120
-        if p.item == "phone" and side == 1:
+        if clap:  # аплодирует: кисти перед лицом
+            hx = 34 + side * (6 + 22 * abs(math.sin(t * 13 + p.seed)))
+            hy = -350
+            line(ctx, ax, ay, hx, hy, 28, p.shirt)
+        elif p.item == "phone" and side == 1 and not sleep:
             hx, hy = ax + 30, ay + 40
             line(ctx, ax, ay, ax + 50, ay + 90, 28, p.shirt)
             line(ctx, ax + 50, ay + 90, hx + 20, hy - 10, 28, p.shirt)
@@ -529,11 +533,22 @@ def npc(ctx, p, t, walking=True, alpha=1.0, wipe=1.0, frozen_t=None, grin=0.0):
         rr(ctx, 0, hy0 - 16, 82, 14, 7)
         fill(ctx, p.shirt)
     # лицо (в профиль-три-четверти)
-    ell(ctx, 16, hy0 + 2, 6, 8)
-    fill(ctx, "#1b1b1b")
-    ell(ctx, 40, hy0 + 2, 5, 7)
-    fill(ctx, "#1b1b1b")
-    if grin > 0:  # слишком широкая улыбка
+    if sleep:  # закрытые глаза, открытый рот
+        for ex in (16, 40):
+            ctx.arc(ex, hy0, 7, 0.2, TAU / 2 - 0.2)
+            ctx.set_line_width(3.5)
+            src(ctx, "#1b1b1b")
+            ctx.stroke()
+        ell(ctx, 30, hy0 + 28, 9, 12)
+        fill(ctx, "#4a1d14")
+    else:
+        ell(ctx, 16, hy0 + 2, 6, 8)
+        fill(ctx, "#1b1b1b")
+        ell(ctx, 40, hy0 + 2, 5, 7)
+        fill(ctx, "#1b1b1b")
+    if sleep:
+        pass
+    elif grin > 0:  # слишком широкая улыбка
         ctx.move_to(4, hy0 + 18)
         ctx.curve_to(10, hy0 + 18 + 34 * grin, 50, hy0 + 18 + 34 * grin, 56, hy0 + 14)
         ctx.close_path()
