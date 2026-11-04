@@ -467,7 +467,7 @@ class Npc:
         return [self.skin, self.hair, self.shirt, self.pants]
 
 
-def npc(ctx, p, t, walking=True, alpha=1.0, wipe=1.0, frozen_t=None, grin=0.0, sleep=False, clap=False, stare=0.0, look_down=False):
+def npc(ctx, p, t, walking=True, alpha=1.0, wipe=1.0, frozen_t=None, grin=0.0, sleep=False, clap=False, stare=0.0, look_down=False, back=False):
     """Простой мультяшный прохожий. wipe<1 — растворение снизу вверх."""
     tt = t if frozen_t is None else min(t, frozen_t)
     ph = p.phase + tt * 7.5 * p.speed if walking else None
@@ -621,6 +621,16 @@ def npc(ctx, p, t, walking=True, alpha=1.0, wipe=1.0, frozen_t=None, grin=0.0, s
         fill(ctx, p.shirt)
         rr(ctx, 0, hy0 - 16, 82, 14, 7)
         fill(ctx, p.shirt)
+    if back:  # стоит спиной: затылок, без лица
+        ctx.arc(0, hy0, 60, 0, TAU)
+        fill(ctx, p.hair if p.style != "bald" else p.skin)
+        if p.style == "bun":
+            ctx.arc(-4, hy0 - 60, 24, 0, TAU)
+            fill(ctx, p.hair)
+        ctx.pop_group_to_source()
+        ctx.paint_with_alpha(alpha)
+        ctx.restore()
+        return x
     if p.uniform == "stew":  # шляпка-таблетка
         rr(ctx, -40, hy0 - 70, 80, 30, 10)
         fill(ctx, p.shirt)
