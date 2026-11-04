@@ -448,6 +448,19 @@ class Npc:
         self.phase = rnd.random() * TAU
         self.female = self.style in ("long", "bun")
         self.seed = rnd.random() * 100
+        # детали внешности — отдельный генератор, чтобы не сдвигать раскладку старых сцен
+        r2 = random.Random(int(self.seed * 7919) + 1)
+        self.glasses = r2.random() < 0.28
+        self.headphones = r2.random() < 0.15
+        self.beard = (not self.female) and r2.random() < 0.3
+        self.mustache = (not self.female) and not self.beard and r2.random() < 0.2
+        self.earrings = self.female and r2.random() < 0.5
+        self.freckles = r2.random() < 0.18
+        self.collar = r2.choice(["round", "v", "shirt", "hood"])
+        self.print_ = r2.choice([None, None, "stripe", "logo"])
+        self.neck_pillow = False   # включается сценой (самолёт)
+        self.mask = False
+        self.uniform = None        # "stew" — стюардесса, "pilot" — пилот
 
     def colors(self):
         return [self.skin, self.hair, self.shirt, self.pants]
@@ -483,7 +496,54 @@ def npc(ctx, p, t, walking=True, alpha=1.0, wipe=1.0, frozen_t=None, grin=0.0, s
         ctx.close_path()
     else:
         rr(ctx, -62, -305, 124, 170, 30)
-    fill(ctx, p.shirt)
+    g_ = cairo.LinearGradient(-70, 0, 70, 0)
+    c_ = hexc(p.shirt)
+    g_.add_color_stop_rgba(0, *mix(c_, (0, 0, 0, 1), 0.22))
+    g_.add_color_stop_rgba(0.45, *c_)
+    g_.add_color_stop_rgba(1, *mix(c_, (0, 0, 0, 1), 0.28))
+    ctx.set_source(g_)
+    ctx.fill()
+    dark_ = mix(c_, (0, 0, 0, 1), 0.35)
+    if p.print_ == "stripe":
+        for k in range(3):
+            ctx.rectangle(-60, -260 + k * 40, 120, 12)
+            fill(ctx, "#ffffff", 0.35)
+    elif p.print_ == "logo":
+        ctx.arc(10, -240, 18, 0, TAU)
+        fill(ctx, "#ffffff", 0.5)
+    if p.uniform == "stew":
+        for k in range(3):
+            ctx.arc(14, -270 + k * 34, 5, 0, TAU)
+            fill(ctx, "#facc15")
+        rr(ctx, 26, -268, 34, 14, 3)
+        fill(ctx, "#f8fafc")
+    elif p.collar == "v":
+        ctx.move_to(-22, -303)
+        ctx.line_to(14, -262)
+        ctx.line_to(40, -303)
+        fill(ctx, p.skin)
+    elif p.collar == "shirt":
+        ctx.move_to(-26, -305)
+        ctx.line_to(8, -280)
+        ctx.line_to(-6, -305)
+        fill(ctx, "#f8fafc")
+        ctx.move_to(44, -305)
+        ctx.line_to(10, -280)
+        ctx.line_to(24, -305)
+        fill(ctx, "#f8fafc")
+        for k in range(3):
+            ctx.arc(10, -262 + k * 32, 3.5, 0, TAU)
+            fill(ctx, dark_)
+    elif p.collar == "hood":
+        ell(ctx, -20, -300, 50, 18)
+        fill(ctx, dark_)
+        line(ctx, 4, -296, 2, -250, 4, "#f8fafc")
+        line(ctx, 22, -296, 24, -252, 4, "#f8fafc")
+    else:
+        ctx.arc(10, -305, 26, 0, TAU / 2)
+        ctx.set_line_width(5)
+        src(ctx, dark_)
+        ctx.stroke()
     # руки
     sw = math.sin(ph) * 0.5 if ph is not None else 0
     for side, s2 in ((-1, sw), (1, -sw)):
@@ -514,11 +574,39 @@ def npc(ctx, p, t, walking=True, alpha=1.0, wipe=1.0, frozen_t=None, grin=0.0, s
             line(ctx, hx, hy, hx, hy + 70, 6, "#222")
     # голова
     hy0 = -370
+    if p.neck_pillow:
+        ctx.arc(0, hy0 + 52, 46, -0.3, math.pi + 0.3)
+        ctx.set_line_width(26)
+        src(ctx, "#a78bfa")
+        ctx.stroke()
+    if p.uniform == "stew":  # шейный платок
+        ctx.move_to(-20, hy0 + 60)
+        ctx.line_to(46, hy0 + 60)
+        ctx.line_to(30, hy0 + 100)
+        ctx.close_path()
+        fill(ctx, "#facc15")
     if p.style == "long":
         rr(ctx, -60, hy0 - 50, 120, 150, 50)
         fill(ctx, p.hair)
+    # ухо и голова с лёгкой тенью
+    ell(ctx, -26, hy0 + 6, 12, 16)
+    fill(ctx, mix(hexc(p.skin), (0, 0, 0, 1), 0.12))
     ctx.arc(0, hy0, 58, 0, TAU)
-    fill(ctx, p.skin)
+    gh = cairo.RadialGradient(20, hy0 - 20, 10, 0, hy0, 62)
+    gh.add_color_stop_rgba(0, *mix(hexc(p.skin), (1, 1, 1, 1), 0.12))
+    gh.add_color_stop_rgba(1, *mix(hexc(p.skin), (0, 0, 0, 1), 0.12))
+    ctx.set_source(gh)
+    ctx.fill()
+    if p.earrings:
+        ctx.arc(-26, hy0 + 26, 5, 0, TAU)
+        fill(ctx, "#facc15")
+    if p.beard:
+        ctx.move_to(-28, hy0 + 2)
+        ctx.curve_to(-30, hy0 + 64, 50, hy0 + 70, 58, hy0 + 14)
+        ctx.line_to(48, hy0 + 18)
+        ctx.curve_to(40, hy0 + 44, 0, hy0 + 44, -14, hy0 + 2)
+        ctx.close_path()
+        fill(ctx, p.hair)
     if p.style in ("short", "long", "bun"):
         ctx.arc(0, hy0 - 6, 60, TAU / 2 + 0.15, TAU - 0.15)
         ctx.close_path()
@@ -532,8 +620,34 @@ def npc(ctx, p, t, walking=True, alpha=1.0, wipe=1.0, frozen_t=None, grin=0.0, s
         fill(ctx, p.shirt)
         rr(ctx, 0, hy0 - 16, 82, 14, 7)
         fill(ctx, p.shirt)
+    if p.uniform == "stew":  # шляпка-таблетка
+        rr(ctx, -40, hy0 - 70, 80, 30, 10)
+        fill(ctx, p.shirt)
+        rr(ctx, -40, hy0 - 48, 80, 6, 3)
+        fill(ctx, "#facc15")
+    # брови, нос, румянец
+    if not sleep:
+        line(ctx, 8, hy0 - 14, 24, hy0 - 16, 4, p.hair if p.style != "bald" else "#5a3a22")
+        line(ctx, 34, hy0 - 16, 48, hy0 - 13, 4, p.hair if p.style != "bald" else "#5a3a22")
+    ctx.move_to(50, hy0 + 4)
+    ctx.curve_to(60, hy0 + 14, 58, hy0 + 18, 50, hy0 + 18)
+    ctx.set_line_width(3.5)
+    src(ctx, mix(hexc(p.skin), (0, 0, 0, 1), 0.3))
+    ctx.stroke()
+    ell(ctx, 12, hy0 + 20, 9, 5)
+    fill(ctx, "#f87171", 0.25)
+    if p.freckles:
+        for k in range(5):
+            ctx.arc(8 + k * 7, hy0 + 14 + (k % 2) * 4, 1.6, 0, TAU)
+            fill(ctx, "#8b5a2b", 0.6)
     # лицо (в профиль-три-четверти)
-    if sleep:  # закрытые глаза, открытый рот
+    if sleep and p.mask:
+        rr(ctx, -10, hy0 - 12, 66, 24, 10)
+        fill(ctx, "#1e3a8a")
+        line(ctx, -10, hy0, -40, hy0 - 6, 5, "#1e3a8a")
+        ell(ctx, 30, hy0 + 28, 9, 12)
+        fill(ctx, "#4a1d14")
+    elif sleep:  # закрытые глаза, открытый рот
         for ex in (16, 40):
             ctx.arc(ex, hy0, 7, 0.2, TAU / 2 - 0.2)
             ctx.set_line_width(3.5)
@@ -566,6 +680,29 @@ def npc(ctx, p, t, walking=True, alpha=1.0, wipe=1.0, frozen_t=None, grin=0.0, s
         ctx.set_line_width(4)
         src(ctx, "#5a2b1b")
         ctx.stroke()
+    if p.mustache:
+        ctx.move_to(14, hy0 + 20)
+        ctx.curve_to(26, hy0 + 12, 40, hy0 + 12, 52, hy0 + 20)
+        ctx.set_line_width(7)
+        src(ctx, p.hair)
+        ctx.stroke()
+    if p.glasses and not (sleep and p.mask):
+        for ex in (16, 40):
+            ctx.arc(ex, hy0 + 2, 12, 0, TAU)
+            ctx.set_line_width(3.5)
+            src(ctx, "#111")
+            ctx.stroke()
+        line(ctx, 28, hy0 + 2, 28, hy0 + 2, 3.5, "#111")
+        line(ctx, 4, hy0, -24, hy0 - 2, 3, "#111")
+        ell(ctx, 12, hy0 - 2, 4, 3)
+        fill(ctx, "#ffffff", 0.5)
+    if p.headphones:
+        ctx.arc(-4, hy0 - 4, 62, math.pi * 1.05, math.pi * 1.95)
+        ctx.set_line_width(9)
+        src(ctx, "#111827")
+        ctx.stroke()
+        rr(ctx, -42, hy0 - 12, 30, 40, 10)
+        fill(ctx, "#ef4444" if int(p.seed) % 2 else "#111827")
     ctx.pop_group_to_source()
     ctx.paint_with_alpha(alpha)
     ctx.restore()

@@ -259,8 +259,20 @@ def pilot_back(ctx, x, y, s, slump=0.3, wake=0.0):
         for k in range(3):
             line(ctx, side * 95 - 24, -244 + k * 6, side * 95 + 24, -244 + k * 6, 3, "#facc15")
     ctx.translate(0, lerp(40, 0, wake))
+    ctx.move_to(-40, -250)
+    ctx.line_to(0, -210)
+    ctx.line_to(40, -250)
+    fill(ctx, "#f8fafc")
     ctx.arc(0, -320, 70, 0, TAU)
     fill(ctx, "#3b2a1d")
+    ctx.arc(0, -330, 76, math.pi * 1.05, math.pi * 1.95)
+    ctx.set_line_width(10)
+    src(ctx, "#111827")
+    ctx.stroke()
+    for side in (-1, 1):
+        rr(ctx, side * 78 - 16, -340, 32, 46, 10)
+        fill(ctx, "#111827")
+    line(ctx, -78, -300, -40, -280, 4, "#111827")
     rr(ctx, -78, -400, 156, 50, 14)
     fill(ctx, "#111827")
     rr(ctx, -84, -362, 168, 14, 6)
@@ -336,6 +348,22 @@ def cockpit(ctx, t, warn=0.0, fuel_txt="18 МИН", horizon=0.0, speed=180, slum
         text(ctx, "MASTER WARN", 540, 990, 24, "#fff")
         if on:
             glow(ctx, 540, 990, 500, "#ef4444", 0.35 * warn)
+    # верхняя панель с тумблерами
+    rr(ctx, -200, -330, 1480, 110, 10)
+    fill(ctx, "#1f2937")
+    for k in range(28):
+        ctx.arc(-160 + k * 52, -275, 9, 0, TAU)
+        fill(ctx, "#22c55e" if (k * 5 + int(t)) % 7 == 0 else "#64748b")
+    # центральный пульт: РУДы
+    rr(ctx, 400, 1360, 280, 500, 20)
+    fill(ctx, "#111827")
+    for k in range(2):
+        line(ctx, 470 + k * 140, 1600, 470 + k * 140, 1440, 20, "#475569")
+        rr(ctx, 430 + k * 140, 1410, 80, 44, 14)
+        fill(ctx, "#e5e7eb")
+    rr(ctx, 600, 1700, 60, 120, 8)
+    fill(ctx, "#f8fafc")
+    text(ctx, "ЧЕК-ЛИСТ", 630, 1690, 18, "#94a3b8")
     pilot_back(ctx, 120, 1700, 1.15, slump * 0.35, wake)
     pilot_back(ctx, 960, 1700, 1.15, -slump * 0.3, wake)
 
@@ -349,8 +377,36 @@ def cabin(ctx, t, x0, x1, mode="sleep", flash=0.0, hero_x=None, hero_e=None, her
     ctx.fill()
     for k in range(-8, 16):
         line(ctx, k * 300, 340, k * 300, 540, 4, "#94a3b8")
+        rr(ctx, k * 300 + 110, 440, 80, 14, 6)
+        fill(ctx, "#94a3b8")
         ell(ctx, k * 300 + 150, 560, 30, 10)
         fill(ctx, "#fde68a" if mode != "dark" else "#475569")
+        if k % 3 == 0:  # табло «пристегните ремни»
+            rr(ctx, k * 300 + 40, 585, 90, 34, 8)
+            fill(ctx, "#111827")
+            on_ = (t * 1.5) % 1 < 0.7 if mode == "sleep" else True
+            rr(ctx, k * 300 + 52, 592, 28, 20, 4)
+            fill(ctx, "#fbbf24" if on_ else "#3f3f46")
+            ctx.arc(k * 300 + 104, 602, 9, 0, TAU)
+            fill(ctx, "#fbbf24" if on_ else "#3f3f46")
+        if k % 4 == 1 and mode == "sleep":  # лампа для чтения
+            ctx.move_to(k * 300 + 135, 570)
+            ctx.line_to(k * 300 + 165, 570)
+            ctx.line_to(k * 300 + 260, 1400)
+            ctx.line_to(k * 300 + 40, 1400)
+            ctx.close_path()
+            fill(ctx, "#fef3c7", 0.12)
+    # открытая багажная полка с сумкой
+    for k in (2, 9):
+        ctx.save()
+        ctx.translate(k * 300, 330)
+        ctx.rotate(-0.5)
+        rr(ctx, 0, -20, 290, 30, 8)
+        fill(ctx, "#e2e8f0")
+        ctx.restore()
+        rr(ctx, k * 300 + 40, 470, 140, 90, 14)
+        fill(ctx, "#7c3aed")
+        line(ctx, k * 300 + 120, 560, k * 300 + 130, 700, 6, "#111827")
     # иллюминаторы
     for k in range(-8, 16):
         cx = k * 300 + 150
@@ -359,6 +415,15 @@ def cabin(ctx, t, x0, x1, mode="sleep", flash=0.0, hero_x=None, hero_e=None, her
         if flash > 0:
             rr(ctx, cx - 50, 640, 100, 150, 46)
             fill(ctx, "#e0e7ff", flash)
+        sh = (k * 37 % 5) / 5  # шторки на разной высоте
+        if sh > 0.3:
+            ctx.save()
+            rr(ctx, cx - 50, 640, 100, 150, 46)
+            ctx.clip()
+            ctx.rectangle(cx - 50, 640, 100, 150 * sh)
+            fill(ctx, "#e5e7eb")
+            line(ctx, cx - 50, 640 + 150 * sh, cx + 50, 640 + 150 * sh, 4, "#94a3b8")
+            ctx.restore()
         rr(ctx, cx - 50, 640, 100, 150, 46)
         ctx.set_line_width(10)
         src(ctx, "#e2e8f0")
@@ -368,14 +433,45 @@ def cabin(ctx, t, x0, x1, mode="sleep", flash=0.0, hero_x=None, hero_e=None, her
     fill(ctx, "#334155")
     for k in range(-20, 40):
         line(ctx, k * 120, 1710, k * 120 + 60, 1900, 4, "#3f4b5f")
+        ctx.arc(k * 120 + 40, 1780, 6, 0, TAU)
+        fill(ctx, "#475569")
+    # вещи на полу
+    for k in range(-6, 14):
+        rk = random.Random(k * 3 + 1)
+        fx = k * 300 + rk.uniform(80, 220)
+        kind = rk.choice(["shoe", "mag", "phone", "bottle", None, None])
+        if kind == "shoe":
+            ell(ctx, fx, 1700, 30, 14)
+            fill(ctx, rk.choice(["#7c2d12", "#111827", "#f8fafc"]))
+        elif kind == "mag":
+            ctx.save()
+            ctx.translate(fx, 1702)
+            ctx.rotate(0.15)
+            rr(ctx, -40, -8, 80, 14, 2)
+            fill(ctx, "#f472b6")
+            ctx.restore()
+        elif kind == "phone" and mode == "sleep":
+            rr(ctx, fx - 22, 1694, 44, 12, 3)
+            fill(ctx, "#111")
+            glow(ctx, fx, 1690, 60, "#7dd3fc", 0.5)
+        elif kind == "bottle":
+            ctx.save()
+            ctx.translate(fx, 1696)
+            ctx.rotate(1.5)
+            rr(ctx, -10, -30, 20, 60, 8)
+            fill(ctx, "#7dd3fc", 0.7)
+            ctx.restore()
     r = random.Random(13)
     rows = list(range(-6, 14))
     for k in rows:
         sx = k * 300
         if sx < x0 - 400 or sx > x1 + 400:
             continue
-        p = Npc(random.Random(k * 31 + 7), sx + 120, 1640, 0.82, 1)
+        p = Npc(random.Random(k * 31 + 7), sx + 120, 1640, 0.95, 1)
         p.item = "phone" if k % 4 == 0 else "none"
+        rk = random.Random(k * 11 + 5)
+        p.neck_pillow = rk.random() < 0.35
+        p.mask = mode == "sleep" and rk.random() < 0.3
         # спинка кресла (за пассажиром)
         rr(ctx, sx + 20, 1060, 120, 520, 40)
         lgrad(ctx, sx + 20, 0, sx + 140, 0, [(0, "#1e3a8a"), (1, "#2563eb")])
@@ -390,9 +486,27 @@ def cabin(ctx, t, x0, x1, mode="sleep", flash=0.0, hero_x=None, hero_e=None, her
         npc(ctx, p, t, walking=False, sleep=(mode == "sleep"), clap=(mode == "clap"),
             grin=0.25 if mode == "clap" else 0.0)
         ctx.restore()
-        # сиденье и подлокотник
+        # сиденье, плед, подлокотник
         rr(ctx, sx + 60, 1470, 220, 90, 30)
         fill(ctx, "#1d4ed8")
+        if rk.random() < 0.5:
+            rr(ctx, sx + 70, 1420, 200, 110, 30)
+            fill(ctx, rk.choice(["#b91c1c", "#0f766e", "#a16207", "#6d28d9"]))
+            for j in range(3):
+                line(ctx, sx + 90 + j * 60, 1424, sx + 80 + j * 60, 1526, 5, "#ffffff", 0.25)
+        # откидной столик впереди с напитком
+        rr(ctx, sx + 250, 1400, 90, 14, 4)
+        fill(ctx, "#cbd5e1")
+        it = rk.choice(["cup", "can", "snack", None])
+        if it == "cup":
+            rr(ctx, sx + 280, 1360, 26, 40, 4)
+            fill(ctx, "#f8fafc")
+        elif it == "can":
+            rr(ctx, sx + 282, 1356, 22, 44, 6)
+            fill(ctx, rk.choice(["#ef4444", "#22c55e", "#3b82f6"]))
+        elif it == "snack":
+            rr(ctx, sx + 270, 1380, 50, 20, 4)
+            fill(ctx, "#f59e0b")
         rr(ctx, sx + 150, 1420, 140, 30, 12)
         fill(ctx, "#475569")
         line(ctx, sx + 120, 1560, sx + 120, 1700, 14, "#1f2937")
@@ -400,21 +514,25 @@ def cabin(ctx, t, x0, x1, mode="sleep", flash=0.0, hero_x=None, hero_e=None, her
     # стюардесса и тележка
     if x0 - 400 < stew_x < x1 + 400:
         st = Npc(random.Random(5), stew_x, 1700, 0.95, 1)
-        st.style, st.shirt, st.pants, st.item = "bun", "#b91c1c", "#1f2937", "none"
-        ctx.save()
-        if mode == "sleep":
-            ctx.translate(stew_x, 1700)
-            ctx.rotate(0.45)
-            ctx.translate(-stew_x, -1700)
-        npc(ctx, st, t, walking=False, sleep=(mode == "sleep"), clap=(mode == "clap"),
-            grin=0.25 if mode == "clap" else 0.0)
-        ctx.restore()
+        st.style, st.shirt, st.pants, st.item = "bun", "#1e3a8a", "#1e3a8a", "none"
+        st.uniform, st.glasses, st.headphones, st.earrings = "stew", False, False, True
         cx = stew_x + 250
         rr(ctx, cx - 100, 1380, 200, 300, 10)
         lgrad(ctx, cx - 100, 0, cx + 100, 0, [(0, "#94a3b8"), (0.5, "#e2e8f0"), (1, "#94a3b8")])
         ctx.fill()
         for k in range(3):
             line(ctx, cx - 90, 1440 + k * 70, cx + 90, 1440 + k * 70, 4, "#64748b")
+            rr(ctx, cx - 20, 1462 + k * 70, 40, 10, 4)
+            fill(ctx, "#475569")
+        rr(ctx, cx - 70, 1600, 140, 36, 6)
+        fill(ctx, "#d8332a")
+        text(ctx, "БОРТ 307", cx, 1618, 22, "#ffffff")
+        for k in range(4):  # стаканчики и бутылки
+            rr(ctx, cx - 90 + k * 22, 1340, 18, 40, 3)
+            fill(ctx, "#f8fafc")
+        for k, c_ in enumerate(("#16a34a", "#f59e0b")):
+            rr(ctx, cx + 10 + k * 34, 1310, 26, 70, 8)
+            fill(ctx, c_, 0.85)
         ctx.arc(cx - 70, 1690, 16, 0, TAU)
         fill(ctx, "#111")
         ctx.arc(cx + 70, 1690, 16, 0, TAU)
@@ -433,6 +551,14 @@ def cabin(ctx, t, x0, x1, mode="sleep", flash=0.0, hero_x=None, hero_e=None, her
                 fill(ctx, "#5a3420", 1 - age * 0.6)
             ell(ctx, cx + 110, 1705, 70, 12)
             fill(ctx, "#5a3420", 0.85)
+        ctx.save()
+        if mode == "sleep":
+            ctx.translate(stew_x, 1700)
+            ctx.rotate(0.38)
+            ctx.translate(-stew_x, -1700)
+        npc(ctx, st, t, walking=False, sleep=(mode == "sleep"), clap=(mode == "clap"),
+            grin=0.25 if mode == "clap" else 0.0)
+        ctx.restore()
     if hero_x is not None:
         hero(ctx, hero_x, 1880, 1.0, hero_e, t, arms="relax" if hero_walk is None else "relax",
              walk=hero_walk, rim="#93c5fd", rim_a=0.6, look=(0.6, 0))
@@ -471,6 +597,7 @@ def s0_wake(ctx, t, u, D):
         rr(ctx, 380, 760, 420, 900, 100)
         fill(ctx, "#1e3a8a")
         p = Npc(random.Random(3), 880, 1700, 1.25, -1)
+        p.neck_pillow, p.mask = True, True
         ctx.save()
         ctx.translate(880, 1700)
         ctx.rotate(-0.25)
@@ -493,7 +620,7 @@ def s0_wake(ctx, t, u, D):
 def s1_cabin(ctx, t, u, D):
     camx = lerp(300, 1650, ease(seg(u, 0, D)))
     ctx.save()
-    cam(ctx, t, camx, 1250, 0.95, shake=0.35)
+    cam(ctx, t, camx, 1300, 1.05, shake=0.35)
     cabin(ctx, t, camx - 700, camx + 700, "sleep", hero_x=camx - 120, hero_e=emo("fear"), hero_walk=t * 5)
     ctx.restore()
 
@@ -744,7 +871,7 @@ def s8_applause(ctx, t, u, D):
     ap = EV["applause"][0] - TL.shots[8][0]
     camx = lerp(900, 1200, ease(seg(u, 0, D)))
     ctx.save()
-    cam(ctx, t, camx, 1250, lerp(0.9, 0.95, ease(seg(u, 0, D))), shake=0.3)
+    cam(ctx, t, camx, 1300, lerp(1.05, 1.15, ease(seg(u, 0, D))), shake=0.3)
     mode = "awake" if u < ap else "clap"
     cabin(ctx, t, camx - 700, camx + 700, mode, hero_x=camx, hero_e=emo("worry"), stew_x=1650)
     ctx.restore()
@@ -853,6 +980,52 @@ def tower_room(ctx, t, beam=None):
         line(ctx, x + 200, 900, x + 90, 1040, 3, "#334155")
     rr(ctx, -1200, 1080, 3500, 30, 6)
     fill(ctx, "#475569", 0.4)
+    # старый радар, бинокль, кружка, планшет, календарь
+    ctx.arc(150, 1280, 120, 0, TAU)
+    fill(ctx, "#022c22")
+    for rr_ in (40, 80, 115):
+        ctx.arc(150, 1280, rr_, 0, TAU)
+        ctx.set_line_width(2)
+        src(ctx, "#14532d")
+        ctx.stroke()
+    line(ctx, 60, 1200, 230, 1370, 3, "#94a3b8", 0.6)
+    line(ctx, 150, 1280, 150 + math.cos(t * 0.3) * 115, 1280 + math.sin(t * 0.3) * 115, 3, "#166534")
+    for k in range(2):
+        rr(ctx, 520 + k * 60, 1150, 50, 90, 20)
+        fill(ctx, "#111827")
+        ctx.arc(545 + k * 60, 1150, 24, 0, TAU)
+        fill(ctx, "#334155")
+    rr(ctx, 760, 1150, 60, 76, 8)
+    fill(ctx, "#e5e7eb")
+    ctx.arc(824, 1188, 18, -1.3, 1.3)
+    ctx.set_line_width(7)
+    src(ctx, "#e5e7eb")
+    ctx.stroke()
+    ell(ctx, 790, 1152, 26, 7)
+    fill(ctx, "#365314")
+    ctx.save()
+    ctx.translate(900, 1170)
+    ctx.rotate(-0.2)
+    rr(ctx, -60, -80, 120, 160, 6)
+    fill(ctx, "#d6d3d1")
+    rr(ctx, -24, -90, 48, 20, 4)
+    fill(ctx, "#78716c")
+    for k in range(6):
+        line(ctx, -44, -50 + k * 22, 44, -50 + k * 22, 3, "#78716c")
+    ctx.restore()
+    ctx.save()
+    ctx.translate(1180, 520)
+    ctx.rotate(0.06)
+    rr(ctx, -70, -90, 140, 180, 4)
+    fill(ctx, "#e7e5e4")
+    rr(ctx, -70, -90, 140, 40, 4)
+    fill(ctx, "#b91c1c")
+    text(ctx, "2009", 0, -70, 26, "#ffffff")
+    for i in range(4):
+        for j in range(5):
+            ctx.rectangle(-58 + j * 24, -40 + i * 30, 18, 22)
+            fill(ctx, "#a8a29e", 0.6)
+    ctx.restore()
     # паутина в углу
     for k in range(6):
         a = k * 0.25
@@ -986,7 +1159,7 @@ def s13_radio(ctx, t, u, D):
         k = seg(u, ec, ec + 0.6)
         src(ctx, "#000")
         ctx.paint()
-        s = back_out(k)
+        s = max(0.02, back_out(k))
         ctx.translate(540, 820)
         ctx.scale(s, s)
         text(ctx, "ПРОДОЛЖЕНИЕ", 0, -190, 70, "#ffffff")

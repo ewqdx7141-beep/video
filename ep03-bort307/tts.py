@@ -37,7 +37,7 @@ async def one(i, text):
         spk, text = text.split("|", 1)
     path = os.path.join(ROOT, "audio", "lines", f"{i:02d}.mp3")
     words = []
-    for attempt in range(4):
+    for attempt in range(8):
         try:
             words = []
             com = edge_tts.Communicate(text, VOICE, rate=SPK[spk]["rate"], pitch=SPK[spk]["pitch"], boundary="WordBoundary")
@@ -50,7 +50,9 @@ async def one(i, text):
             break
         except Exception as e:  # сеть
             print("retry", i, e, file=sys.stderr)
-            await asyncio.sleep(2 ** attempt)
+            if attempt == 7:
+                raise
+            await asyncio.sleep(min(30, 2 ** attempt))
     return {"i": i, "spk": spk, "text": text, "file": os.path.relpath(path, ROOT), "dur": probe(path), "words": words}
 
 

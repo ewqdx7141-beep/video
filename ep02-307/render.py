@@ -956,7 +956,7 @@ def s12_notme(ctx, t, u, D):
         k = seg(u, ec, ec + 0.6)
         src(ctx, "#000")
         ctx.paint()
-        s = back_out(k)
+        s = max(0.02, back_out(k))
         ctx.translate(540, 820)
         ctx.scale(s, s)
         text(ctx, "ПРОДОЛЖЕНИЕ", 0, -190, 70, "#ffffff")
