@@ -349,10 +349,11 @@ def arms_lerp(a, b, t):
 
 def hero(ctx, x, y, sc=1.0, e=None, t=0.0, arms="down", walk=None, look=(0, 0), blink=0.0,
          legs=True, rim="#ff5a2a", rim_a=0.9, back=False, tilt=0.0, bob=0.0, hand_item=None,
-         tremble=0.0, knees=False):
+         tremble=0.0, knees=False, hood=None):
     """Герой. (x,y) — точка между ступнями (или бёдра, если legs=False)."""
     e = e or emo("neutral")
     A = ARMS[arms] if isinstance(arms, str) else arms
+    HC, HD = (hood if hood else (HOOD, HOOD_D))
     ctx.save()
     ctx.translate(x, y)
     ctx.scale(sc, sc)
@@ -384,14 +385,14 @@ def hero(ctx, x, y, sc=1.0, e=None, t=0.0, arms="down", walk=None, look=(0, 0), 
     ctx.curve_to(60, -355, -60, -355, -98, -330)
     ctx.close_path()
     g = cairo.LinearGradient(-100, 0, 100, 0)
-    g.add_color_stop_rgba(0, *hexc(HOOD_D))
-    g.add_color_stop_rgba(0.45, *hexc(HOOD))
-    g.add_color_stop_rgba(1, *hexc(HOOD_D))
+    g.add_color_stop_rgba(0, *hexc(HD))
+    g.add_color_stop_rgba(0.45, *hexc(HC))
+    g.add_color_stop_rgba(1, *hexc(HD))
     ctx.set_source(g)
     ctx.fill()
     if not back:
         rr(ctx, -62, -235, 124, 58, 22)  # карман
-        fill(ctx, HOOD_D)
+        fill(ctx, HD)
         line(ctx, -22, -330, -26, -270, 6, "#f4f4f4")
         line(ctx, 22, -330, 26, -270, 6, "#f4f4f4")
     if knees:  # сидит, обняв колени
@@ -402,7 +403,7 @@ def hero(ctx, x, y, sc=1.0, e=None, t=0.0, arms="down", walk=None, look=(0, 0), 
             fill(ctx, "#f2f2f2")
     # капюшон за головой
     ell(ctx, 0, -340, 92, 34)
-    fill(ctx, HOOD_D)
+    fill(ctx, HD)
     # руки
     items = []
     for i, side in enumerate((-1, 1)):
@@ -415,7 +416,7 @@ def hero(ctx, x, y, sc=1.0, e=None, t=0.0, arms="down", walk=None, look=(0, 0), 
         ctx.set_line_width(44)
         ctx.set_line_cap(cairo.LINE_CAP_ROUND)
         ctx.set_line_join(cairo.LINE_JOIN_ROUND)
-        src(ctx, HOOD if not back else HOOD_D)
+        src(ctx, HC if not back else HD)
         ctx.stroke()
         items.append((hx, hy))
     head_r = 118
