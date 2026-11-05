@@ -412,6 +412,29 @@ def beach(ctx, t, tide=0.0, breathe=0.0, dusk=0.0, sea_y=1150):
     lgrad(ctx, 0, 700, 0, sy, [(0, SEA_D), (1, SEA)])
     ctx.fill()
     waves(ctx, t, 760, 8, "#ffffff", 0.35, 10)
+    # дальний остров, парус на горизонте, блики солнца на воде
+    ell(ctx, -200, 720, 260, 40)
+    fill(ctx, "#065f46", 0.7)
+    for k in range(3):
+        palm(ctx, -300 + k * 90, 715, 0.18, t, 0.1)
+    sx_ = (t * 12) % 1800 - 300
+    ctx.move_to(sx_, 690)
+    ctx.line_to(sx_ + 30, 690)
+    ctx.line_to(sx_ + 15, 640)
+    ctx.close_path()
+    fill(ctx, "#ffffff", 0.8)
+    rg = random.Random(int(t * 6))
+    for k in range(26):
+        gx = 860 + rg.uniform(-260, 260)
+        gy = 730 + rg.uniform(0, sy - 760)
+        line(ctx, gx - 14, gy, gx + 14, gy, 3, "#fffbeb", rg.uniform(0.3, 0.9))
+    # рифы и кораллы в воде
+    for k, (cx_, cy_) in enumerate(((140, sy - 80), (980, sy - 120), (560, sy - 200))):
+        ell(ctx, cx_, cy_, 90, 18)
+        fill(ctx, "#155e75", 0.6)
+        for j in range(4):
+            line(ctx, cx_ - 40 + j * 26, cy_, cx_ - 46 + j * 26, cy_ - 30 - (j % 2) * 16, 7,
+                 ["#f472b6", "#fb923c", "#f472b6", "#fde047"][j], 0.7)
     lift = math.sin(t * 1.4) * 18 * breathe
     ctx.save()
     ctx.translate(0, -lift)
@@ -425,7 +448,97 @@ def beach(ctx, t, tide=0.0, breathe=0.0, dusk=0.0, sea_y=1150):
     lgrad(ctx, 0, sy, 0, sy + 1200, [(0, "#fde68a"), (0.3, SAND), (1, SAND_D)])
     ctx.fill()
     line(ctx, -1500, sy + 6, 2500, sy + 6, 10, "#ffffff", 0.7)
+    # пена прибоя
+    for k in range(18):
+        fx_ = -1400 + k * 230 + math.sin(t * 1.3 + k) * 20
+        ell(ctx, fx_, sy + 16, 70, 10)
+        fill(ctx, "#ffffff", 0.6)
+    # мокрый песок у воды
+    ctx.rectangle(-1500, sy + 10, 4000, 90)
+    fill(ctx, "#d6b06a", 0.35)
     r = random.Random(5)
+    # водоросли вдоль линии прибоя
+    for i in range(14):
+        x = r.uniform(-900, 2000)
+        ctx.move_to(x, sy + 60)
+        for j in range(6):
+            ctx.rel_line_to(r.uniform(14, 26), r.uniform(-12, 12))
+        ctx.set_line_width(7)
+        src(ctx, "#166534", 0.8)
+        ctx.stroke()
+    # морские звёзды
+    for i in range(6):
+        x, y = r.uniform(-700, 1800), sy + r.uniform(140, 1100)
+        ctx.save()
+        ctx.translate(x, y)
+        ctx.rotate(r.uniform(0, 1))
+        for j in range(5):
+            a = j * TAU / 5
+            ctx.move_to(0, 0)
+            ctx.line_to(math.cos(a - 0.3) * 14, math.sin(a - 0.3) * 14)
+            ctx.line_to(math.cos(a) * 34, math.sin(a) * 34)
+            ctx.line_to(math.cos(a + 0.3) * 14, math.sin(a + 0.3) * 14)
+            ctx.close_path()
+            fill(ctx, r.choice(["#f97316", "#ef4444", "#facc15"]))
+        ctx.restore()
+    # коряга, обломки лодки, бутылка с запиской, кокосы на песке
+    ctx.save()
+    ctx.translate(-380, sy + 520)
+    ctx.rotate(-0.12)
+    rr(ctx, -200, -22, 400, 44, 22)
+    fill(ctx, "#a8a29e")
+    for j in range(5):
+        line(ctx, -180 + j * 80, -14, -140 + j * 80, 12, 3, "#78716c")
+    line(ctx, 120, -10, 190, -70, 14, "#a8a29e")
+    ctx.restore()
+    ctx.save()
+    ctx.translate(1350, sy + 260)
+    ctx.rotate(0.25)
+    ctx.move_to(-220, 0)
+    ctx.curve_to(-160, 90, 160, 90, 220, 0)
+    ctx.line_to(180, -20)
+    ctx.line_to(-180, -20)
+    ctx.close_path()
+    fill(ctx, "#92400e")
+    for j in range(4):
+        line(ctx, -170 + j * 110, -16, -150 + j * 110, 60, 5, "#78350f")
+    line(ctx, -40, -20, -60, -200, 10, "#78350f")
+    ctx.move_to(-56, -190)
+    ctx.line_to(60, -120)
+    ctx.line_to(-48, -60)
+    fill(ctx, "#e7e5e4", 0.85)
+    text(ctx, "НАДЕЖДА", 40, 30, 26, "#fde68a")
+    ctx.restore()
+    ctx.save()
+    ctx.translate(820, sy + 160 + math.sin(t * 2) * 4)
+    ctx.rotate(0.6)
+    rr(ctx, -40, -14, 80, 28, 12)
+    fill(ctx, "#86efac", 0.6)
+    rr(ctx, 38, -7, 18, 14, 3)
+    fill(ctx, "#78350f")
+    rr(ctx, -26, -8, 44, 16, 3)
+    fill(ctx, "#fef3c7")
+    ctx.restore()
+    for k in range(4):
+        ctx.arc(1080 + k * 50, sy + 820 + (k % 2) * 20, 30, 0, TAU)
+        fill(ctx, "#78350f")
+        ctx.arc(1072 + k * 50, sy + 812 + (k % 2) * 20, 8, 0, TAU)
+        fill(ctx, "#451a03")
+    # черепашка ползёт к воде
+    tx_ = 200 + (t * 18) % 400
+    ell(ctx, tx_, sy + 700, 44, 28)
+    fill(ctx, "#4d7c0f")
+    for j in range(3):
+        ctx.arc(tx_ - 18 + j * 18, sy + 696, 8, 0, TAU)
+        ctx.set_line_width(3)
+        src(ctx, "#365314")
+        ctx.stroke()
+    ctx.arc(tx_ + 48, sy + 690, 12, 0, TAU)
+    fill(ctx, "#65a30d")
+    # следы на песке
+    for k in range(10):
+        ell(ctx, 380 + k * 34 + (k % 2) * 10, sy + 900 + k * 30, 12, 20)
+        fill(ctx, SAND_D, 0.8)
     for i in range(40):  # ракушки, камешки
         x, y = r.uniform(-800, 1800), sy + r.uniform(60, 1300)
         ell(ctx, x, y, r.uniform(6, 14), r.uniform(4, 8))
@@ -530,8 +643,23 @@ def s3_fire(ctx, t, u, D):
     cam(ctx, t, 560, 1700, lerp(1.2, 1.5, ease(seg(u, 0, D))), shake=0.25)
     beach(ctx, t, dusk=0.6)
     # лучковое сверло и костёр
+    for j in range(10):
+        a = j * TAU / 10
+        ell(ctx, 680 + math.cos(a) * 110, 1950 + math.sin(a) * 34, 26, 18)
+        fill(ctx, "#78716c")
     for j in range(6):
         line(ctx, 640 - 60 + j * 22, 1960, 700 - j * 22 + 40, 1900, 12, "#78350f")
+    if k > 0.5:
+        for j in range(10):
+            a = (t * 1.5 + j * 0.13) % 1
+            ctx.arc(680 + math.sin(j * 7 + t) * 60 * a, 1860 - a * 320, 4, 0, TAU)
+            fill(ctx, "#fde047", 1 - a)
+        line(ctx, 590, 1760, 770, 1760, 6, "#57534e")
+        ctx.arc(680, 1790, 46, 0, math.pi)
+        fill(ctx, "#44403c")
+    # запас хвороста
+    for j in range(7):
+        line(ctx, 880, 1990 - j * 10, 1060, 1970 - j * 12, 10, "#a16207")
     if k > 0:
         for j in range(5):
             a = (t * 3 + j / 5) % 1
@@ -568,6 +696,13 @@ def s4_shelter(ctx, t, u, D):
         ctx.line_to(x + 40, 1940)
         ctx.close_path()
         fill(ctx, "#16a34a" if j % 2 else "#15803d")
+    if k > 0.6:
+        rr(ctx, 600, 1920, 220, 30, 10)
+        fill(ctx, "#a3e635", 0.8)
+        line(ctx, 840, 1700, 1080, 1720, 3, "#a16207")
+        rr(ctx, 900, 1700, 70, 90, 8)
+        fill(ctx, CAST[0])
+        line(ctx, 1080, 1720, 1080, 1990, 10, "#78350f")
     castaway(ctx, 320, 1980, 1.0, emo("determined"), t, arms="hold", look=(0.8, 0),
              item=lambda c, x, y: (c.move_to(x - 60, y), c.curve_to(x, y - 80, x + 60, y - 40, x + 100, y), fill(c, "#16a34a")))
     ctx.restore()
@@ -669,9 +804,33 @@ def s7_tally(ctx, t, u, D):
             continue
         rr(ctx, 80, y - 70, 920, 150, 26)
         fill(ctx, "#1e293b", a)
-        text(ctx, nm, 120, y - 22, 48, col, align="left", alpha=a)
-        text(ctx, val, 120, y + 32, 34, "#cbd5e1", align="left", alpha=a)
-        bar(ctx, 470, y - 14, 330, fr * ease(seg(t, tl[i], tl[i] + 0.6)), col)
+        ix = 140
+        if i == 0:
+            ctx.move_to(ix, y - 34)
+            ctx.curve_to(ix + 30, y, ix + 24, y + 30, ix, y + 30)
+            ctx.curve_to(ix - 24, y + 30, ix - 30, y, ix, y - 34)
+            fill(ctx, col, a)
+        elif i == 1:
+            ell(ctx, ix, y + 6, 24, 32)
+            fill(ctx, col, a)
+            ell(ctx, ix, y + 14, 12, 16)
+            fill(ctx, "#fde047", a)
+        elif i == 2:
+            ctx.arc(ix, y, 28, 0, TAU)
+            fill(ctx, "#78350f", a)
+            ctx.arc(ix + 6, y, 18, -0.9, 0.9)
+            fill(ctx, "#fefce8", a)
+        elif i == 3:
+            ctx.move_to(ix - 34, y + 28)
+            ctx.line_to(ix, y - 30)
+            ctx.line_to(ix + 34, y + 28)
+            ctx.close_path()
+            fill(ctx, col, a)
+        else:
+            text(ctx, "SOS", ix, y, 30, col, alpha=a)
+        text(ctx, nm, 200, y - 22, 48, col, align="left", alpha=a)
+        text(ctx, val, 200, y + 32, 34, "#cbd5e1", align="left", alpha=a)
+        bar(ctx, 520, y - 14, 300, fr * ease(seg(t, tl[i], tl[i] + 0.6)), col)
         text(ctx, fracs[i], 960, y, 50, "#ffffff", align="right", alpha=a)
     ctx.restore()
 
@@ -705,6 +864,19 @@ def creature_eye(ctx, x, y, s, open_k, t, look=0.0):
         a = k * TAU / 10
         ell(ctx, math.cos(a) * 330, math.sin(a) * 210, 60, 40)
         fill(ctx, "#3f6212")
+    rb = random.Random(2)
+    for k in range(18):  # ракушки-наросты
+        a = rb.uniform(0, TAU)
+        d_ = rb.uniform(300, 360)
+        ctx.arc(math.cos(a) * d_, math.sin(a) * d_ * 0.65, rb.uniform(10, 22), 0, TAU)
+        fill(ctx, rb.choice(["#d6d3d1", "#a8a29e", "#e7e5e4"]))
+    for k in range(12):  # свисающие водоросли
+        x_ = -260 + k * 48
+        ctx.move_to(x_, 160)
+        ctx.curve_to(x_ + 10, 220, x_ - 14, 260, x_ + math.sin(t * 2 + k) * 10, 320)
+        ctx.set_line_width(8)
+        src(ctx, "#166534", 0.9)
+        ctx.stroke()
     ctx.save()
     ell(ctx, 0, 0, 280, 170 * open_k + 1)
     ctx.clip()
@@ -805,8 +977,28 @@ def s12_alive(ctx, t, u, D):
         ctx.translate(0, 0)
         beach(ctx, t, tide=-1.2, breathe=1.5, dusk=0.4) if k < 0.15 else None
         ctx.restore()
+        for k2 in range(16):  # пенный след за существом
+            ell(ctx, sx - 1700 - k2 * 160, sy + 300 + math.sin(k2 + t) * 60, 220 - k2 * 8, 60)
+            fill(ctx, "#ffffff", 0.35 - k2 * 0.02)
+        rb = random.Random(4)
+        for k2 in range(40):
+            a = rb.uniform(0, TAU)
+            ctx.arc(sx + math.cos(a) * 1250, sy + math.sin(a) * 900, rb.uniform(14, 34), 0, TAU)
+            fill(ctx, "#d6d3d1")
         ell(ctx, sx, sy - 150, 900, 600)  # «остров» на спине
         fill(ctx, SAND)
+        ell(ctx, sx + 200, sy + 100, 300, 120)  # SOS видно сверху
+        fill(ctx, SAND_D, 0.5)
+        text(ctx, "SOS", sx + 200, sy + 100, 120, "#57534e")
+        for k2 in range(8):  # чайки над спиной
+            bx = sx - 800 + k2 * 220 + math.sin(t + k2) * 40
+            by = sy - 900 + math.cos(t * 1.3 + k2) * 50
+            ctx.move_to(bx - 50, by)
+            ctx.curve_to(bx - 25, by - 26, bx - 10, by - 16, bx, by)
+            ctx.curve_to(bx + 10, by - 16, bx + 25, by - 26, bx + 50, by)
+            ctx.set_line_width(10)
+            src(ctx, "#f8fafc")
+            ctx.stroke()
         for px, py in ((sx - 400, sy - 200), (sx + 300, sy - 350), (sx + 500, sy + 50)):
             palm(ctx, px, py, 0.9, t, 0.2)
         castaway(ctx, sx, sy, 0.5, emo("shock"), t, arms="down")
