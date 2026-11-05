@@ -467,8 +467,18 @@ class Npc:
         return [self.skin, self.hair, self.shirt, self.pants]
 
 
-def npc(ctx, p, t, walking=True, alpha=1.0, wipe=1.0, frozen_t=None, grin=0.0, sleep=False, clap=False, stare=0.0, look_down=False, back=False):
-    """Простой мультяшный прохожий. wipe<1 — растворение снизу вверх."""
+def npc(ctx, p, t, walking=True, alpha=1.0, wipe=1.0, frozen_t=None, grin=0.0, sleep=False, clap=False, stare=0.0, look_down=False, back=False, zombie=0.0):
+    """Простой мультяшный прохожий. wipe<1 — растворение снизу вверх. zombie 0..1 — превращение."""
+    if zombie > 0:
+        class _Z:
+            pass
+        z = _Z()
+        z.__dict__.update(p.__dict__)
+        z.skin = "#%02x%02x%02x" % tuple(int(255 * v) for v in mix(hexc(p.skin), hexc("#8fae7a"), 0.85 * zombie)[:3])
+        z.shirt = "#%02x%02x%02x" % tuple(int(255 * v) for v in mix(hexc(p.shirt), hexc("#4b5563"), 0.45 * zombie)[:3])
+        z.glasses = False
+        z.zombie = zombie
+        p = z
     tt = t if frozen_t is None else min(t, frozen_t)
     ph = p.phase + tt * 7.5 * p.speed if walking else None
     x = p.x + (p.dir * 95 * p.speed * tt if walking else 0)
@@ -550,7 +560,11 @@ def npc(ctx, p, t, walking=True, alpha=1.0, wipe=1.0, frozen_t=None, grin=0.0, s
     for side, s2 in ((-1, sw), (1, -sw)):
         ax, ay = side * 58, -290
         hx, hy = ax + math.sin(s2) * 120, ay + math.cos(s2) * 120
-        if clap:  # аплодирует: кисти перед лицом
+        if getattr(p, "zombie", 0) > 0.5:  # руки вытянуты вперёд
+            hx = ax + 140 + math.sin(tt * 3 + side) * 10
+            hy = ay + 30 + side * 14
+            line(ctx, ax, ay, hx, hy, 28, p.shirt)
+        elif clap:  # аплодирует: кисти перед лицом
             hx = 34 + side * (6 + 22 * abs(math.sin(t * 13 + p.seed)))
             hy = -350
             line(ctx, ax, ay, hx, hy, 28, p.shirt)
@@ -652,6 +666,24 @@ def npc(ctx, p, t, walking=True, alpha=1.0, wipe=1.0, frozen_t=None, grin=0.0, s
             ctx.arc(8 + k * 7, hy0 + 14 + (k % 2) * 4, 1.6, 0, TAU)
             fill(ctx, "#8b5a2b", 0.6)
     # лицо (в профиль-три-четверти)
+    if getattr(p, "zombie", 0) > 0.5:  # пустые белые глаза, рот, шрамы, рваная одежда
+        for ex in (16, 40):
+            ctx.arc(ex, hy0 + 2, 9, 0, TAU)
+            fill(ctx, "#f1f5f9")
+            ctx.arc(ex + 1, hy0 + 2, 2.5, 0, TAU)
+            fill(ctx, "#7f1d1d")
+        ell(ctx, 30, hy0 + 30, 12, 9)
+        fill(ctx, "#3f1d1d")
+        line(ctx, -10, hy0 - 30, 14, hy0 - 22, 4, "#7f1d1d", 0.8)
+        for k in range(3):
+            ctx.move_to(-50 + k * 40, -160)
+            ctx.line_to(-40 + k * 40, -140)
+            ctx.line_to(-30 + k * 40, -160)
+            fill(ctx, "#1f2937")
+        ctx.pop_group_to_source()
+        ctx.paint_with_alpha(alpha)
+        ctx.restore()
+        return x
     if sleep and p.mask:
         rr(ctx, -10, hy0 - 12, 66, 24, 10)
         fill(ctx, "#1e3a8a")

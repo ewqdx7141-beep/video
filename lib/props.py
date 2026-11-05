@@ -833,3 +833,18 @@ def apartment_door(ctx, x, y, w=220, h=420, num="12"):
     ctx.arc(x + w - 30, y - h / 2, 10, 0, TAU)
     fill(ctx, "#d4a849")
     text(ctx, num, x + w / 2, y - h + 20, 26, "#d4a849")
+
+
+def sofa(ctx, x, y, w=760, col="#334155"):
+    shadow(ctx, x, y + 10, w * 0.6, 30, 0.5)
+    rr(ctx, x - w / 2, y - 330, w, 200, 60)
+    lgrad(ctx, 0, y - 330, 0, y - 130, [(0, shade(col, 0.15)), (1, shade(col, -0.2))])
+    ctx.fill()
+    rr(ctx, x - w / 2 - 20, y - 170, w + 40, 150, 40)
+    fill(ctx, shade(col, -0.05))
+    for k in (-1, 1):
+        rr(ctx, x + k * (w / 2 + 10) - 50, y - 260, 100, 250, 40)
+        fill(ctx, shade(col, -0.15))
+    for k in range(3):
+        rr(ctx, x - w / 2 + 40 + k * (w - 80) / 3, y - 190, (w - 80) / 3 - 10, 40, 16)
+        fill(ctx, shade(col, 0.08))
