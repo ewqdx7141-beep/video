@@ -1132,7 +1132,7 @@ def overlays(ctx, t, i):
         ctx.translate(540, 360)
         ctx.scale(k1, k1)
         ctx.push_group()
-        text(ctx, "ЧТО ДЕЛАТЬ, ЕСЛИ", 0, -110, 84, "#ffffff", "#000", 16, shadow=True)
+        text(ctx, "ЧТО, ЕСЛИ", 0, -110, 88, "#ffffff", "#000", 16, shadow=True)
         text(ctx, "ТЫ ОДИН", 0, 10, 116, "#ffd400", "#000", 18, shadow=True)
         rr(ctx, -360, 90, 720, 130, 22)
         fill(ctx, "#d8332a")
