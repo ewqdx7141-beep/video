@@ -1007,7 +1007,7 @@ def s3_map(ctx, t, u, D):
     hero(ctx, lerp(300, 800, ease(seg(u, 0, D))) - 50, 2100, 1.0, emo("happy"), t, walk=t * 6, rim="#fbbf24",
          arms="hold", hand_item=lambda c, x, y: (rr(c, x - 70, y - 60, 140, 90, 4), fill(c, "#fde68a")))
     ctx.restore()
-    paper_map(ctx, 540, 1150, 0.6, t, route=seg(t, mp, TL.shots[4][0]))
+    paper_map(ctx, 540, 900, 0.5, t, route=seg(t, mp, TL.shots[4][0]))
     step_card(ctx, t, EV["steps"][1], 2, "БУМАЖНАЯ КАРТА\nЗАПОМИНАЙ УЛИЦЫ")
     hud24(ctx, t)
 
@@ -1074,9 +1074,9 @@ def s5_book(ctx, t, u, D):
 
 def s6_stars(ctx, t, u, D):
     ctx.save()
-    cam(ctx, t, 540, lerp(1500, 1100, ease(seg(u, 0, D))), 0.85, shake=0.15)
+    cam(ctx, t, 540, lerp(1300, 900, ease(seg(u, 0, D))), 0.75, shake=0.15)
     rooftop(ctx, t)
-    hero(ctx, 540, 1900, 1.0, emo("calm"), t, arms="down", back=True, rim="#a5b4fc", legs=False)
+    hero(ctx, 540, 1700, 1.0, emo("calm"), t, arms="down", back=True, rim="#a5b4fc", legs=False)
     ctx.restore()
     step_card(ctx, t, EV["steps"][4], 5, "ТИШИНА\nЗВЁЗДЫ ВМЕСТО ЛЕНТЫ")
     hud24(ctx, t)
@@ -1170,7 +1170,7 @@ def phone_screen(t, n_notif=0, glow_msg=0.0):
 def s9_on(ctx, t, u, D):
     on = EV["on"]
     ctx.save()
-    cam(ctx, t, 540, 1050, lerp(0.95, 1.1, seg(u, 0, D)), shake=0.2)
+    cam(ctx, t, 600, 1500, lerp(0.95, 1.1, seg(u, 0, D)), shake=0.2)
     reading_room(ctx, t)
     tape_box(ctx, 540, 1700, 1.0, t, phone_in=1 - seg(t, on - 1.2, on - 0.4) * 0.0, tape=1 - seg(t, on - 1.5, on - 0.8))
     hero(ctx, 900, 2050, 1.0, emo("happy"), t, arms="fwd", rim="#38bdf8", look=(-0.8, 0.5))
@@ -1184,7 +1184,7 @@ def s10_zero(ctx, t, u, D):
     hands_phone(ctx, t, phone_screen(t), tremble=0.9)
     ctx.restore()
     if t > EV["zero"]:
-        text(ctx, "0", 540, 1500, 300, "#ef4444", "#000", 20, alpha=seg(t, EV["zero"], EV["zero"] + 0.2))
+        text(ctx, "0", 540, 1250, 300, "#ef4444", "#000", 20, alpha=seg(t, EV["zero"], EV["zero"] + 0.2))
 
 
 def s11_street(ctx, t, u, D):
