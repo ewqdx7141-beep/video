@@ -26,7 +26,7 @@ def _fuselage_path(ctx):
 
 
 def airliner(ctx, x, y, s, t, gear=False, lit=True, tilt=0.0, contrail=False, cockpit_fn=None,
-             landing_lights=None, livery="#1e3a8a"):
+             landing_lights=None, livery="#1e3a8a", marks=True):
     """Лайнер в профиль, нос вправо. cockpit_fn(ctx) рисует содержимое кабины (окно ~ x 640..760, y -80..-40)."""
     ctx.save()
     ctx.translate(x, y)
@@ -61,22 +61,23 @@ def airliner(ctx, x, y, s, t, gear=False, lit=True, tilt=0.0, contrail=False, co
     ctx.line_to(-700, -400)
     ctx.curve_to(-640, -300, -560, -180, -420, -100)
     ctx.close_path()
-    _lg(ctx, -800, 0, -420, 0, [(0, "#0f1f4d"), (1, livery)])
+    _lg(ctx, -800, 0, -420, 0, [(0, "#0f1f4d" if marks else "#e2e8f0"), (1, livery)])
     ctx.fill()
     line(ctx, -790, -380, -650, -130, 3, "#ffffff", 0.25)  # руль направления
-    # логотип на киле
-    ctx.save()
-    ctx.translate(-680, -270)
-    ctx.arc(0, 0, 46, 0, TAU)
-    fill(ctx, "#ffffff")
-    ctx.arc(0, 0, 38, 0, TAU)
-    fill(ctx, "#d8332a")
-    ctx.move_to(-26, 10)
-    ctx.curve_to(-6, -30, 14, -30, 30, -20)
-    ctx.curve_to(10, -10, 0, 6, -26, 10)
-    fill(ctx, "#ffffff")
-    ctx.restore()
-    text(ctx, "307", -710, -160, 40, "#ffffff")
+    if marks:  # логотип на киле
+        ctx.save()
+        ctx.translate(-680, -270)
+        ctx.arc(0, 0, 46, 0, TAU)
+        fill(ctx, "#ffffff")
+        ctx.arc(0, 0, 38, 0, TAU)
+        fill(ctx, "#d8332a")
+        ctx.move_to(-26, 10)
+        ctx.curve_to(-6, -30, 14, -30, 30, -20)
+        ctx.curve_to(10, -10, 0, 6, -26, 10)
+        fill(ctx, "#ffffff")
+        ctx.restore()
+    if marks:
+        text(ctx, "307", -710, -160, 40, "#ffffff")
     # --- фюзеляж
     _fuselage_path(ctx)
     _lg(ctx, 0, -116, 0, 62, [(0, "#ffffff"), (0.35, "#f1f5f9"), (0.7, "#cbd5e1"), (1, "#7c8aa0")])
@@ -94,7 +95,8 @@ def airliner(ctx, x, y, s, t, gear=False, lit=True, tilt=0.0, contrail=False, co
         xx = -560 + k * 72
         line(ctx, xx, -114, xx, 60, 1.5, "#94a3b8", 0.35)
     ctx.restore()
-    text(ctx, "СКАЙЛАЙН", 160, -18, 34, livery)
+    if marks:
+        text(ctx, "СКАЙЛАЙН", 160, -18, 34, livery)
     # двери
     for dx in (-560, 420):
         rr(ctx, dx, -96, 40, 98, 10)
